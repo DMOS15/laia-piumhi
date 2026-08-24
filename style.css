@@ -7,6 +7,10 @@
 
 body{
     background:#f5f6f8;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
 }
 
 header{
@@ -20,10 +24,20 @@ header h1{
     margin-bottom:10px;
 }
 
+.logo-jde-footer{
+    display:block;
+    width:clamp(150px, 15vw, 240px);
+    max-width:100%;
+    max-height:90px;
+    object-fit:contain;
+    margin:24px auto;
+}
+
 main{
-    max-width:1200px;
+    width:100%;
+    max-width:1440px;
     margin:auto;
-    padding:30px;
+    padding:28px clamp(20px, 3vw, 48px);
 }
 
 #busca{
@@ -55,8 +69,8 @@ main{
 
 .cards-container{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-    gap:20px;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:18px;
 }
 
 .card-area{
@@ -233,7 +247,8 @@ main{
 }
 
 .area-main{
-    max-width:1280px;
+    width:100%;
+    max-width:1440px;
 }
 
 .filtros{
@@ -380,10 +395,44 @@ main{
     text-align:center;
 }
 
+.site-footer{
+    display:grid;
+    grid-template-columns:minmax(150px, 220px) minmax(0, 1fr) minmax(210px, 260px);
+    align-items:center;
+    margin-top:34px;
+    background:#fff;
+    border-top:1px solid #e2e5e7;
+}
+
+.governanca-laia{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:18px 28px;
+    width:100%;
+    max-width:1440px;
+    margin:auto;
+    padding:24px 30px;
+    color:#263238;
+}
+
+.site-footer > .governanca-laia{
+    max-width:none;
+    margin:0;
+}
+
+.governanca-laia div{display:grid;gap:5px;}
+.governanca-laia span{color:#66737a;font-size:12px;font-weight:600;}
+.governanca-laia strong{font-size:14px;font-weight:600;overflow-wrap:anywhere;}
+
 .qr-footer h2{
     margin-bottom:16px;
     color:#4a1d0f;
     font-size:20px;
+}
+
+.site-footer > .qr-footer{
+    grid-column:3;
+    margin-top:0;
 }
 
 .qrcode{
@@ -442,4 +491,30 @@ main{
     .barra-areas{display:grid;align-items:stretch;}
 
     .resultado-item{grid-template-columns:1fr;gap:6px;}
+
+    .site-footer{display:block;}
+    .logo-jde-footer{width:clamp(150px, 45vw, 190px);max-height:72px;margin:22px auto 8px;}
+    .governanca-laia{grid-template-columns:1fr;padding:22px 18px;gap:16px;}
+    .site-footer > .qr-footer{margin-top:0;}
+}
+
+@media (min-width:601px) and (max-width:900px){
+    main{padding-left:24px;padding-right:24px;}
+    .cards-container{grid-template-columns:repeat(2, minmax(0, 1fr));}
+    .filtros-grid{grid-template-columns:repeat(2, minmax(0, 1fr));}
+    .governanca-laia{grid-template-columns:repeat(2, minmax(0, 1fr));padding-left:24px;padding-right:24px;}
+    .site-footer{grid-template-columns:minmax(130px, 180px) minmax(0, 1fr);}
+    .site-footer > .qr-footer{grid-column:2;}
+}
+
+@media (min-width:901px){
+    .indicadores-dashboard{grid-template-columns:repeat(7, minmax(0, 1fr));}
+    .filtros-grid{grid-template-columns:repeat(5, minmax(0, 1fr));}
+    .barra-areas{flex-wrap:wrap;}
+}
+
+@media (min-width:1280px){
+    header{padding:26px 48px;}
+    .cards-container{grid-template-columns:repeat(5, minmax(0, 1fr));}
+    .resultado-item{grid-template-columns:1.1fr 1.4fr 1.8fr 1fr;}
 }
