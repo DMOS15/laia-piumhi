@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados da Busca | LAIA</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+
+<body class="pagina-area">
+    <header class="area-header">
+        <a class="botao-voltar" href="index.html">&larr; Voltar para Áreas</a>
+        <p class="eyebrow">Consulta global</p>
+        <h1>Resultados da busca</h1>
+        <p id="termo-busca" class="termo-busca"></p>
+    </header>
+
+    <main class="area-main">
+        <p id="status-resultados" class="status-area" aria-live="polite"></p>
+        <section id="resultados-container" class="resultados-container" aria-live="polite"></section>
+    </main>
+
+    <script src="excelService.js"></script>
+    <script src="resultados.js"></script>
+</body>
+
+</html>

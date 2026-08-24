@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAIA JDE</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" onerror="console.error('[LAIA] Falha ao carregar a biblioteca SheetJS.')"></script>
+
+</head>
+
+<body>
+
+    <header>
+        <h1>LAIA - Aspectos e Impactos Ambientais</h1>
+        <p>Consulta por Área / Processo</p>
+    </header>
+
+    <main>
+        <section class="busca-global" aria-label="Busca global">
+            <label for="busca">Buscar em todas as informações</label>
+            <div class="busca-global-controle">
+                <input type="search" id="busca" placeholder="Ex.: ruído, água, manutenção...">
+                <button id="botao-busca" type="button">Pesquisar</button>
+            </div>
+            <p>Pesquisa áreas, atividades, aspectos, impactos, controles e objetivos.</p>
+        </section>
+
+        <section class="indicadores-dashboard" aria-label="Indicadores gerais">
+            <div class="indicador"><span>Áreas</span><strong id="total-areas">0</strong></div>
+            <div class="indicador"><span>Atividades</span><strong id="total-atividades">0</strong></div>
+            <div class="indicador"><span>Aspectos</span><strong id="total-aspectos">0</strong></div>
+            <div class="indicador"><span>Impactos</span><strong id="total-impactos">0</strong></div>
+            <div class="indicador risco-verde"><span>Insignificantes</span><strong id="total-insignificantes">0</strong></div>
+            <div class="indicador risco-amarelo"><span>Significativos</span><strong id="total-significativos">0</strong></div>
+            <div class="indicador risco-vermelho"><span>Muito altos</span><strong id="total-muito-altos">0</strong></div>
+        </section>
+
+        <section class="barra-areas">
+            <label for="filtro-risco">Exibir áreas</label>
+            <select id="filtro-risco">
+                <option value="todas">Todas as áreas</option>
+                <option value="muito-alto">Com risco muito alto</option>
+                <option value="significativo">Com risco significativo</option>
+                <option value="sem-significativo">Sem riscos significativos</option>
+            </select>
+            <label for="ordenacao-areas">Organizar</label>
+            <select id="ordenacao-areas">
+                <option value="az">A-Z</option>
+                <option value="za">Z-A</option>
+            </select>
+        </section>
+
+        <div class="cards-container"></div>
+
+    </main>
+
+    <footer class="qr-footer">
+        <h2>Compartilhar página</h2>
+        <div id="qrcode" class="qrcode" aria-label="QR Code desta página"></div>
+        <button id="baixar-qrcode" class="botao-download" type="button">Baixar QR Code</button>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="excelService.js"></script>
+    <script src="app.js"></script>
+    <script src="qrCode.js"></script>
+
+</body>
+
+</html>
