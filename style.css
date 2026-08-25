@@ -471,6 +471,22 @@ main{
     opacity:.6;
 }
 
+.botao-admin-footer{
+    display:inline-block;
+    margin-top:12px;
+    padding:10px 16px;
+    border:1px solid #4a1d0f;
+    border-radius:8px;
+    color:#4a1d0f;
+    font-size:13px;
+    font-weight:700;
+    text-decoration:none;
+}
+
+.botao-admin-footer:hover{
+    background:#f1e5df;
+}
+
 @media (max-width:600px){
     .area-header,
     .area-main{
@@ -518,3 +534,38 @@ main{
     .cards-container{grid-template-columns:repeat(5, minmax(0, 1fr));}
     .resultado-item{grid-template-columns:1.1fr 1.4fr 1.8fr 1fr;}
 }
+
+/* Painel administrativo */
+.admin-page{background:#f3f5f2;color:#24332d;}
+.admin-header{background:#173d35;color:#fff;text-align:left;padding:0;}
+.admin-header-inner{width:100%;max-width:1180px;margin:auto;padding:28px clamp(20px, 5vw, 72px) 58px;}
+.admin-back-link{display:inline-block;color:#d8e8df;text-decoration:none;font-weight:700;margin-bottom:54px;}
+.admin-back-link:hover{text-decoration:underline;}
+.admin-kicker,.admin-eyebrow{color:#b8d8c6;font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;}
+.admin-header h1{font-size:clamp(2.1rem, 5vw, 4.4rem);line-height:1.02;margin:12px 0 14px;}
+.admin-header p{color:#d8e8df;font-size:17px;max-width:560px;}
+.admin-main{max-width:1040px;padding-top:32px;padding-bottom:70px;}
+.admin-panel{background:#fff;border:1px solid #dfe8e2;border-radius:10px;box-shadow:0 16px 35px rgba(31,62,49,.08);padding:clamp(22px, 4vw, 40px);margin-bottom:20px;}
+.admin-panel-heading{display:flex;align-items:center;gap:16px;margin-bottom:28px;}
+.admin-step{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#e1f1e7;color:#176b4d;font-weight:900;}
+.admin-panel h2{color:#173d35;font-size:clamp(1.35rem, 3vw, 2rem);margin-top:5px;}
+.admin-pin-form label{display:block;font-weight:700;margin-bottom:8px;}
+.admin-pin-control{display:flex;gap:10px;max-width:640px;}
+.admin-pin-control input{min-width:0;flex:1;padding:13px 14px;border:1px solid #bdcbc2;border-radius:6px;font:inherit;letter-spacing:2px;}
+.admin-button{border:0;border-radius:6px;background:#d66b35;color:#fff;padding:12px 18px;font:inherit;font-weight:800;cursor:pointer;white-space:nowrap;}
+.admin-button:hover{background:#b95325;}
+.admin-button:disabled{cursor:not-allowed;opacity:.5;}
+.admin-feedback{min-height:20px;margin-top:10px;font-size:14px;font-weight:700;}
+.admin-feedback-success{color:#176b4d;}.admin-feedback-error{color:#a3291d;}
+.admin-upload{display:flex;align-items:center;gap:16px;border:1px dashed #9eb7a8;border-radius:8px;background:#f5faf6;padding:20px;cursor:pointer;}
+.admin-upload:hover{border-color:#176b4d;background:#eef8f1;}
+.admin-upload-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:6px;background:#176b4d;color:#fff;font-size:11px;font-weight:900;}
+.admin-upload strong,.admin-upload small{display:block;}.admin-upload small{color:#687970;margin-top:4px;}
+.admin-upload input{position:absolute;width:1px;height:1px;opacity:0;}
+.admin-status{margin:20px 0;color:#5b6c63;font-size:14px;}
+.admin-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:26px;}
+.admin-metric{border-top:3px solid #176b4d;background:#f4f7f4;padding:16px;border-radius:5px;}.admin-metric span{display:block;color:#687970;font-size:13px;font-weight:700;}.admin-metric strong{display:block;color:#173d35;font-size:30px;margin-top:8px;}.admin-metric-errors{border-top-color:#d66b35;}
+.admin-errors{margin-top:20px;border:1px solid #f0c7bb;border-radius:6px;background:#fff7f4;padding:18px;color:#8f3524;}.admin-errors h3{font-size:16px;margin-bottom:9px;}.admin-errors ul{padding-left:20px;display:grid;gap:5px;font-size:14px;}
+.admin-actions{display:flex;align-items:center;gap:18px;margin-top:28px;padding-top:24px;border-top:1px solid #e7ede8;}.admin-actions p{color:#687970;font-size:12px;max-width:410px;}.admin-button-download{background:#176b4d;}.admin-button-download:hover{background:#0f553c;}
+.admin-footer{text-align:center;padding:22px;color:#687970;font-size:12px;letter-spacing:.5px;background:#fff;border-top:1px solid #dfe8e2;}.admin-footer span{margin:0 7px;color:#d66b35;}
+@media (max-width:600px){.admin-header-inner{padding-bottom:42px;}.admin-back-link{margin-bottom:38px;}.admin-pin-control,.admin-actions{display:grid;}.admin-button{width:100%;}.admin-metrics{grid-template-columns:1fr;}.admin-upload{align-items:flex-start;}.admin-actions{gap:12px;}}

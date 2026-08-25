@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração | LAIA JDE</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" onerror="console.error('[LAIA] Falha ao carregar a biblioteca SheetJS.')"></script>
+</head>
+<body class="admin-page">
+    <header class="admin-header">
+        <div class="admin-header-inner">
+            <a class="admin-back-link" href="index.html">Voltar ao LAIA</a>
+            <span class="admin-kicker">Painel administrativo</span>
+            <h1>Atualização de dados</h1>
+            <p>Valide uma nova planilha LAIA e gere o arquivo pronto para publicação.</p>
+        </div>
+    </header>
+    <main class="admin-main">
+        <section class="admin-panel admin-auth-panel" id="painel-pin" aria-labelledby="titulo-pin">
+            <div class="admin-panel-heading"><span class="admin-step">01</span><div><p class="admin-eyebrow">Acesso restrito</p><h2 id="titulo-pin">Informe o PIN</h2></div></div>
+            <form id="form-pin" class="admin-pin-form">
+                <label for="pin">PIN de administração</label>
+                <div class="admin-pin-control"><input id="pin" name="pin" type="password" inputmode="text" autocomplete="off" required><button class="admin-button" type="submit">Validar acesso</button></div>
+                <p class="admin-feedback" id="mensagem-pin" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <section class="admin-panel admin-workspace" id="painel-importacao" hidden aria-labelledby="titulo-importacao">
+            <div class="admin-panel-heading"><span class="admin-step">02</span><div><p class="admin-eyebrow">Importação</p><h2 id="titulo-importacao">Selecione o arquivo Excel</h2></div></div>
+            <label class="admin-upload" for="arquivo-excel"><span class="admin-upload-icon" aria-hidden="true">XLS</span><span><strong>Selecionar arquivo Excel</strong><small>Formatos aceitos: .xlsx, .xls ou .xlsb</small></span><input id="arquivo-excel" type="file" accept=".xlsx,.xls,.xlsb,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"></label>
+            <div class="admin-status" id="status-importacao" role="status" aria-live="polite">Aguardando um arquivo para iniciar a validação.</div>
+            <div class="admin-metrics" aria-label="Resumo da validação"><div class="admin-metric"><span>Registros válidos</span><strong id="total-registros">0</strong></div><div class="admin-metric"><span>Áreas encontradas</span><strong id="total-areas">0</strong></div><div class="admin-metric admin-metric-errors"><span>Erros encontrados</span><strong id="total-erros">0</strong></div></div>
+            <section class="admin-errors" id="painel-erros" hidden aria-labelledby="titulo-erros"><h3 id="titulo-erros">Erros encontrados</h3><ul id="lista-erros"></ul></section>
+            <div class="admin-actions"><button class="admin-button admin-button-download" id="baixar-json" type="button" disabled>Baixar novo laia.json</button><p>Depois do download, substitua o arquivo de dados no repositório e publique a alteração no GitHub Pages.</p></div>
+        </section>
+    </main>
+    <footer class="admin-footer">LAIA JDE <span aria-hidden="true">/</span> Unidade Piumhi</footer>
+    <script src="excelService.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
