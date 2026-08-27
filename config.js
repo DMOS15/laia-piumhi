@@ -1,4 +1,5 @@
-const GITHUB_API_URL = "COLOCAR_URL_DA_API_VERCEL_AQUI";
+const GITHUB_API_URL =
+  "https://laia-piumhi-ixfgjtdtj-equipe-she.vercel.app/api/github";
 const PIN_ADMIN = "JDEPIU";
 
 export {
