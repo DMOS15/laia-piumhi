@@ -13,7 +13,7 @@
             <a class="admin-back-link" href="index.html">Voltar ao LAIA</a>
             <span class="admin-kicker">Painel administrativo</span>
             <h1>Atualização de dados</h1>
-            <p>Valide uma nova planilha LAIA e gere o arquivo pronto para publicação.</p>
+            <p>Valide, acompanhe e publique uma nova versão dos dados ambientais.</p>
         </div>
     </header>
     <main class="admin-main">
@@ -25,17 +25,38 @@
                 <p class="admin-feedback" id="mensagem-pin" role="status" aria-live="polite"></p>
             </form>
         </section>
-        <section class="admin-panel admin-workspace" id="painel-importacao" hidden aria-labelledby="titulo-importacao">
-            <div class="admin-panel-heading"><span class="admin-step">02</span><div><p class="admin-eyebrow">Importação</p><h2 id="titulo-importacao">Selecione o arquivo Excel</h2></div></div>
-            <label class="admin-upload" for="arquivo-excel"><span class="admin-upload-icon" aria-hidden="true">XLS</span><span><strong>Selecionar arquivo Excel</strong><small>Formatos aceitos: .xlsx, .xls ou .xlsb</small></span><input id="arquivo-excel" type="file" accept=".xlsx,.xls,.xlsb,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"></label>
-            <div class="admin-status" id="status-importacao" role="status" aria-live="polite">Aguardando um arquivo para iniciar a validação.</div>
-            <div class="admin-metrics" aria-label="Resumo da validação"><div class="admin-metric"><span>Registros válidos</span><strong id="total-registros">0</strong></div><div class="admin-metric"><span>Áreas encontradas</span><strong id="total-areas">0</strong></div><div class="admin-metric admin-metric-errors"><span>Erros encontrados</span><strong id="total-erros">0</strong></div></div>
-            <section class="admin-errors" id="painel-erros" hidden aria-labelledby="titulo-erros"><h3 id="titulo-erros">Erros encontrados</h3><ul id="lista-erros"></ul></section>
-            <div class="admin-actions"><button class="admin-button admin-button-download" id="baixar-json" type="button" disabled>Baixar novo laia.json</button><p>Depois do download, substitua o arquivo de dados no repositório e publique a alteração no GitHub Pages.</p></div>
-        </section>
+        <div id="painel-conteudo" hidden>
+            <section class="admin-panel admin-indicators" aria-label="Indicadores administrativos">
+                <div class="admin-panel-heading"><span class="admin-step">02</span><div><p class="admin-eyebrow">Visão geral</p><h2>Estado do sistema</h2></div></div>
+                <div class="admin-indicator-grid">
+                    <div class="admin-indicator"><span>Última atualização</span><strong id="indicador-data">Ainda não carregada</strong></div>
+                    <div class="admin-indicator"><span>Último arquivo publicado</span><strong id="indicador-arquivo">Nenhum registro</strong></div>
+                    <div class="admin-indicator"><span>Registros publicados</span><strong id="indicador-registros">0</strong></div>
+                    <div class="admin-indicator"><span>Áreas cadastradas</span><strong id="indicador-areas">0</strong></div>
+                    <div class="admin-indicator"><span>Última justificativa</span><strong id="indicador-justificativa">Nenhum registro</strong></div>
+                    <div class="admin-indicator"><span>Versão do sistema</span><strong id="indicador-versao">1.0.0</strong></div>
+                </div>
+            </section>
+
+            <section class="admin-panel admin-workspace" id="painel-importacao" aria-labelledby="titulo-importacao">
+                <div class="admin-panel-heading"><span class="admin-step">03</span><div><p class="admin-eyebrow">Importação</p><h2 id="titulo-importacao">Selecione o arquivo Excel</h2></div></div>
+                <label class="admin-upload" for="arquivo-excel"><span class="admin-upload-icon" aria-hidden="true">XLS</span><span><strong>Selecionar arquivo .xlsx</strong><small>O nome do arquivo não é validado.</small></span><input id="arquivo-excel" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+                <div class="admin-status" id="status-importacao" role="status" aria-live="polite">Aguardando um arquivo para iniciar a validação.</div>
+                <div class="admin-summary" id="resumo-planilha" hidden>
+                    <div><span>Arquivo</span><strong id="resumo-arquivo">-</strong></div><div><span>Registros</span><strong id="resumo-registros">0</strong></div><div><span>Áreas</span><strong id="resumo-areas">0</strong></div><div><span>Aspectos</span><strong id="resumo-aspectos">0</strong></div><div><span>Impactos</span><strong id="resumo-impactos">0</strong></div><div><span>Data da análise</span><strong id="resumo-data">-</strong></div>
+                </div>
+                <section class="admin-errors" id="painel-erros" hidden aria-labelledby="titulo-erros"><h3 id="titulo-erros">Erros encontrados</h3><ul id="lista-erros"></ul></section>
+                <label class="admin-justificativa" for="justificativa">Justificativa da atualização <span>*</span><textarea id="justificativa" rows="3" placeholder="Ex.: Revisão anual do LAIA" required></textarea></label>
+                <div class="admin-actions"><button class="admin-button admin-button-download" id="publicar-github" type="button" disabled>Publicar no GitHub</button><button class="admin-button admin-button-secondary" id="baixar-atual" type="button">Baixar Versão Atual</button><button class="admin-button admin-button-secondary" id="abrir-historico" type="button">Histórico de Atualizações</button></div>
+            </section>
+            <section class="admin-panel admin-current-version" id="painel-versao-atual" hidden><div class="admin-panel-heading"><span class="admin-step">04</span><div><p class="admin-eyebrow">Repositório</p><h2>Versão atualmente publicada</h2></div></div><div class="admin-current-details" id="detalhes-versao-atual"></div></section>
+        </div>
     </main>
-    <footer class="admin-footer">LAIA JDE <span aria-hidden="true">/</span> Unidade Piumhi</footer>
+    <footer class="admin-footer"><a href="#" id="esqueci-pin">Esqueci meu PIN</a><span aria-hidden="true">/</span> LAIA JDE <span aria-hidden="true">/</span> Unidade Piumhi</footer>
+    <dialog id="modal-confirmacao" class="admin-modal"><form method="dialog"><button class="admin-modal-close" value="cancel" aria-label="Fechar">&times;</button><p class="admin-eyebrow">Confirmação</p><h2>Publicar atualização?</h2><p>Deseja realmente publicar esta atualização?</p><div id="confirmacao-resumo" class="admin-confirmation-summary"></div><div class="admin-modal-actions"><button class="admin-button admin-button-secondary" value="cancel">Cancelar</button><button class="admin-button admin-button-download" id="confirmar-publicacao" value="default">Publicar</button></div></form></dialog>
+    <dialog id="modal-historico" class="admin-modal admin-history-modal"><form method="dialog"><button class="admin-modal-close" value="cancel" aria-label="Fechar">&times;</button><p class="admin-eyebrow">Rastreabilidade</p><h2>Histórico de Atualizações</h2><div id="lista-historico" class="admin-history-list"></div></form></dialog>
+    <dialog id="modal-pin" class="admin-modal"><form method="dialog"><button class="admin-modal-close" value="cancel" aria-label="Fechar">&times;</button><p class="admin-eyebrow">Recuperação de acesso</p><h2>Esqueci meu PIN</h2><p>Responsável pelo sistema:</p><strong>Jhonnathan Pereira</strong><p>Entre em contato para redefinição do PIN.</p><p class="admin-version-note">Versão do sistema: <span id="versao-recuperacao">1.0.0</span></p></form></dialog>
     <script src="excelService.js"></script>
-    <script src="admin.js"></script>
+    <script type="module" src="admin.js"></script>
 </body>
 </html>
