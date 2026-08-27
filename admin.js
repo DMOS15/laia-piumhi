@@ -15,25 +15,23 @@ async function obterShaAtual() {
     return resultado.sha || null;
 }
 
-function converterParaBase64(conteudo) {
-    const bytes = new TextEncoder().encode(conteudo);
+function converterParaBase64(bytes) {
     let binario = '';
     bytes.forEach(byte => { binario += String.fromCharCode(byte); });
     return btoa(binario);
 }
 
-async function atualizarGithub(json, justificativa, informarProgresso = () => {}) {
+async function atualizarGithub(arquivoBase64, justificativa, informarProgresso = () => {}) {
     informarProgresso('1/3 Buscando a versão atual no GitHub...');
     const shaAtual = await obterShaAtual();
-    informarProgresso(shaAtual ? '✅ Arquivo existente encontrado.' : '✅ Criando novo laia.json.');
+    informarProgresso(shaAtual ? '✅ Arquivo existente encontrado.' : '✅ Criando novo LAIA.xlsx.');
     if (shaAtual) informarProgresso('✅ SHA localizado.');
-    informarProgresso('2/3 Convertendo o JSON para Base64...');
-    const conteudo = typeof json === 'string' ? json : JSON.stringify(json, null, 2);
+    informarProgresso('2/3 Preparando o Excel para Base64...');
     informarProgresso('3/3 Publicando os dados no GitHub...');
     const resposta = await fetch(GITHUB_API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ json: conteudo, justificativa, sha: shaAtual })
+            body: JSON.stringify({ contentBase64: arquivoBase64, justificativa, sha: shaAtual })
     });
     if (!resposta.ok) throw new Error(`Não foi possível publicar no GitHub (${resposta.status}). URL: ${GITHUB_API_URL}`);
     return resposta.json();
@@ -66,6 +64,7 @@ async function atualizarGithub(json, justificativa, informarProgresso = () => {}
     };
     let dadosValidados = null;
     let metadadosPlanilha = null;
+    let arquivoBase64 = null;
 
     function normalizar(valor) {
         return String(valor ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -129,10 +128,12 @@ async function atualizarGithub(json, justificativa, informarProgresso = () => {}
         const resposta = await fetch(`${GITHUB_API_URL}?acao=versao`);
         if (!resposta.ok) throw new Error(`Não foi possível baixar a versão atual (${resposta.status}).`);
         const arquivo = await resposta.json();
-        const conteudo = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(arquivo.content.replace(/\n/g, '')), caractere => caractere.charCodeAt(0))));
-        const resumo = estatisticas(conteudo);
-        const blob = new Blob([JSON.stringify(conteudo, null, 2)], { type: 'application/json;charset=utf-8' });
-        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'laia-atual.json'; link.click(); URL.revokeObjectURL(link.href);
+        const bytes = Uint8Array.from(atob(arquivo.content.replace(/\n/g, '')), caractere => caractere.charCodeAt(0));
+        const workbook = XLSX.read(bytes, { type: 'array' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const linhas = XLSX.utils.sheet_to_json(worksheet, { defval: '', raw: true, range: 5 });
+        const resumo = estatisticas(converter(linhas));
+        const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); link.download = 'LAIA.xlsx'; link.click(); URL.revokeObjectURL(link.href);
         document.querySelector('#painel-versao-atual').hidden = false;
         document.querySelector('#detalhes-versao-atual').innerHTML = `<span>Última atualização: ${formatarData(arquivo.commit?.committer?.date || Date.now())}</span><span>Registros: ${resumo.registros}</span><span>Áreas: ${resumo.areas}</span>`;
     }
@@ -163,11 +164,11 @@ async function atualizarGithub(json, justificativa, informarProgresso = () => {}
 
     elementos.arquivo.addEventListener('change', async () => {
         const arquivo = elementos.arquivo.files[0]; if (!arquivo) return;
-        elementos.publicar.disabled = true; dadosValidados = null; elementos.resumo.hidden = true; mostrarErros([]); elementos.status.textContent = `Validando ${arquivo.name}...`;
+        elementos.publicar.disabled = true; dadosValidados = null; arquivoBase64 = null; elementos.resumo.hidden = true; mostrarErros([]); elementos.status.textContent = `Validando ${arquivo.name}...`;
         try {
             const resultado = await validarArquivo(arquivo); mostrarErros(resultado.erros);
             if (resultado.erros.length) { elementos.status.textContent = 'A validação encontrou problemas. Corrija a planilha e tente novamente.'; return; }
-            dadosValidados = resultado.dados; const resumo = estatisticas(dadosValidados);
+            dadosValidados = resultado.dados; arquivoBase64 = converterParaBase64(new Uint8Array(await arquivo.arrayBuffer())); const resumo = estatisticas(dadosValidados);
             metadadosPlanilha = { arquivo: arquivo.name, ...resumo, dataAnalise: arquivo.lastModified || Date.now() };
             Object.entries({ arquivo: arquivo.name, registros: resumo.registros, areas: resumo.areas, aspectos: resumo.aspectos, impactos: resumo.impactos, data: formatarData(metadadosPlanilha.dataAnalise) }).forEach(([chave, valor]) => { document.querySelector(`#resumo-${chave}`).textContent = valor; });
             elementos.resumo.hidden = false; elementos.status.textContent = 'Planilha validada com sucesso. Preencha a justificativa para publicar.'; elementos.publicar.disabled = false;
@@ -183,7 +184,7 @@ async function atualizarGithub(json, justificativa, informarProgresso = () => {}
     elementos.confirmar.addEventListener('click', async evento => {
         evento.preventDefault(); elementos.confirmacao.close(); elementos.publicar.disabled = true; elementos.status.className = 'admin-status admin-status-loading';
         const registro = { ...metadadosPlanilha, justificativa: elementos.justificativa.value.trim(), data: Date.now(), status: 'Erro' };
-        try { await atualizarGithub(dadosValidados, registro.justificativa, mensagem => { elementos.status.textContent = mensagem; }); elementos.status.className = 'admin-status admin-status-success'; elementos.status.innerHTML = `✅ Publicação concluída<br><a href="${URL_PUBLICACAO}" target="_blank" rel="noopener">${URL_PUBLICACAO}</a><small class="admin-api-url">URL utilizada: ${GITHUB_API_URL}</small>`; registro.status = 'Publicado'; salvarHistorico(registro); atualizarIndicadores(); }
+        try { await atualizarGithub(arquivoBase64, registro.justificativa, mensagem => { elementos.status.textContent = mensagem; }); elementos.status.className = 'admin-status admin-status-success'; elementos.status.innerHTML = `✅ Arquivo publicado com sucesso<br><a href="${URL_PUBLICACAO}" target="_blank" rel="noopener">${URL_PUBLICACAO}</a><small class="admin-api-url">URL utilizada: ${GITHUB_API_URL}</small>`; registro.status = 'Publicado'; salvarHistorico(registro); atualizarIndicadores(); }
         catch (erro) { elementos.status.className = 'admin-status admin-status-error'; elementos.status.textContent = `❌ Erro na publicação: ${erro.message}`; salvarHistorico(registro); }
         finally { elementos.publicar.disabled = false; }
     });

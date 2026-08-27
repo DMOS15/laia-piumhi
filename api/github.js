@@ -1,7 +1,7 @@
 const OWNER = 'dmos15';
 const REPOSITORY = 'laia-piumhi';
 const BRANCH = 'main';
-const FILE = 'dados/laia.json';
+const FILE = 'dados/LAIA.xlsx';
 const ORIGENS_PERMITIDAS = new Set([
     'https://dmos15.github.io',
     'https://laia-piumhi-aad6fz4be-equipe-she.vercel.app',
@@ -48,8 +48,8 @@ module.exports = async function handler(req, res) {
         }
 
         if (req.method !== 'PUT') return responder(res, 405, { error: 'Método não permitido.' });
-        const { json, justificativa } = req.body || {};
-        if (!Array.isArray(json) || !String(justificativa || '').trim()) return responder(res, 400, { error: 'JSON e justificativa são obrigatórios.' });
+        const { contentBase64, justificativa } = req.body || {};
+        if (!String(contentBase64 || '').trim() || !String(justificativa || '').trim()) return responder(res, 400, { error: 'Arquivo Excel e justificativa são obrigatórios.' });
 
         const consulta = await fetch(`${githubUrl()}?ref=${BRANCH}`, { headers: headers() });
         const arquivoAtual = consulta.status === 404 ? null : await consulta.json();
@@ -57,7 +57,7 @@ module.exports = async function handler(req, res) {
 
         const payload = {
             message: `Atualização automática do LAIA - ${String(justificativa).trim()}`,
-            content: Buffer.from(JSON.stringify(json, null, 2), 'utf8').toString('base64'),
+            content: String(contentBase64).replace(/\s/g, ''),
             branch: BRANCH
         };
         if (arquivoAtual?.sha) payload.sha = arquivoAtual.sha;

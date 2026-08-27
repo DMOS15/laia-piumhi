@@ -1,6 +1,5 @@
 (function () {
     const arquivoExcel = new URL('./dados/LAIA.xlsx', document.baseURI).href;
-    const arquivoJson = new URL('./dados/laia.json', document.baseURI).href;
     let dadosCompartilhados = null;
 
     const mapaColunas = {
@@ -81,18 +80,6 @@
 
         if (!window.XLSX) {
             throw new Error('A biblioteca SheetJS não foi carregada. Verifique a conexão com a internet e o script CDN no HTML.');
-        }
-
-        try {
-            const respostaJson = await fetch(arquivoJson, { cache: 'no-store' });
-            if (respostaJson.ok) {
-                const dadosJson = await respostaJson.json();
-                if (!Array.isArray(dadosJson)) throw new Error('O arquivo laia.json precisa conter uma lista de registros.');
-                dadosCompartilhados = dadosJson;
-                return dadosCompartilhados;
-            }
-        } catch (erro) {
-            console.info('[LAIA] laia.json não está disponível; usando o Excel como fallback.');
         }
 
         console.log(`[LAIA] Tentando carregar Excel em: ${arquivoExcel}`);
