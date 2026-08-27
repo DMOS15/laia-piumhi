@@ -4,6 +4,7 @@ const BRANCH = 'main';
 const FILE = 'dados/laia.json';
 const ORIGENS_PERMITIDAS = new Set([
     'https://dmos15.github.io',
+    'https://laia-piumhi-aad6fz4be-equipe-she.vercel.app',
     'http://127.0.0.1:5500',
     'http://localhost:5500'
 ]);
@@ -26,7 +27,8 @@ function responder(res, status, body) {
 
 module.exports = async function handler(req, res) {
     const origem = req.headers.origin;
-    if (ORIGENS_PERMITIDAS.has(origem)) res.setHeader('Access-Control-Allow-Origin', origem);
+    const origemVercelPermitida = typeof origem === 'string' && /^https:\/\/laia-piumhi-[a-z0-9-]+\.vercel\.app$/.test(origem);
+    if (ORIGENS_PERMITIDAS.has(origem) || origemVercelPermitida) res.setHeader('Access-Control-Allow-Origin', origem);
     res.setHeader('Vary', 'Origin');
     res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
