@@ -1,15 +1,7 @@
-const GITHUB_OWNER = "dmos15";
-const GITHUB_REPO = "laia-piumhi";
-const GITHUB_BRANCH = "main";
-const GITHUB_FILE = "dados/laia.json";
-const GITHUB_TOKEN = "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";
+const GITHUB_API_URL = "COLOCAR_URL_DA_API_VERCEL_AQUI";
 const PIN_ADMIN = "JDEPIU";
 
 export {
-    GITHUB_OWNER,
-    GITHUB_REPO,
-    GITHUB_BRANCH,
-    GITHUB_FILE,
-    GITHUB_TOKEN,
+    GITHUB_API_URL,
     PIN_ADMIN
 };

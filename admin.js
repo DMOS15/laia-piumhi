@@ -1,9 +1,5 @@
 import {
-    GITHUB_OWNER,
-    GITHUB_REPO,
-    GITHUB_BRANCH,
-    GITHUB_FILE,
-    GITHUB_TOKEN,
+    GITHUB_API_URL,
     PIN_ADMIN
 } from './config.js';
 
@@ -11,25 +7,12 @@ const URL_PUBLICACAO = 'https://dmos15.github.io/laia-piumhi/';
 const CHAVE_HISTORICO = 'laiaHistoricoAtualizacoes';
 const VERSAO_SISTEMA = '1.0.0';
 
-function urlArquivoGithub() {
-    const caminho = GITHUB_FILE.split('/').map(encodeURIComponent).join('/');
-    return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${caminho}`;
-}
-
-function cabecalhosGithub() {
-    return {
-        Accept: 'application/vnd.github+json',
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        'X-GitHub-Api-Version': '2022-11-28'
-    };
-}
-
 async function obterShaAtual() {
-    const resposta = await fetch(`${urlArquivoGithub()}?ref=${encodeURIComponent(GITHUB_BRANCH)}`, { headers: cabecalhosGithub() });
-    if (resposta.status === 404) return null;
+    if (!GITHUB_API_URL || GITHUB_API_URL === 'COLOCAR_URL_DA_API_VERCEL_AQUI') throw new Error('URL da API de publicação não configurada.');
+    const resposta = await fetch(`${GITHUB_API_URL}?acao=sha`);
     if (!resposta.ok) throw new Error(`Não foi possível obter o SHA atual (${resposta.status}).`);
-    const arquivo = await resposta.json();
-    return arquivo.sha;
+    const resultado = await resposta.json();
+    return resultado.sha || null;
 }
 
 function converterParaBase64(conteudo) {
@@ -46,20 +29,13 @@ async function atualizarGithub(json, justificativa, informarProgresso = () => {}
     if (shaAtual) informarProgresso('✅ SHA localizado.');
     informarProgresso('2/3 Convertendo o JSON para Base64...');
     const conteudo = typeof json === 'string' ? json : JSON.stringify(json, null, 2);
-    const base64 = converterParaBase64(conteudo);
     informarProgresso('3/3 Publicando os dados no GitHub...');
-    const payload = {
-        message: `Atualização automática do LAIA - ${justificativa}`,
-        content: base64,
-        branch: GITHUB_BRANCH
-    };
-    if (shaAtual) payload.sha = shaAtual;
-    const resposta = await fetch(urlArquivoGithub(), {
+    const resposta = await fetch(GITHUB_API_URL, {
         method: 'PUT',
-        headers: { ...cabecalhosGithub(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ json: conteudo, justificativa, sha: shaAtual })
     });
-    if (!resposta.ok) throw new Error(`Não foi possível publicar no GitHub (${resposta.status}). URL: ${urlArquivoGithub()}`);
+    if (!resposta.ok) throw new Error(`Não foi possível publicar no GitHub (${resposta.status}). URL: ${GITHUB_API_URL}`);
     return resposta.json();
 }
 
@@ -149,7 +125,8 @@ async function atualizarGithub(json, justificativa, informarProgresso = () => {}
     }
 
     async function obterVersaoAtual() {
-        const resposta = await fetch(`${urlArquivoGithub()}?ref=${encodeURIComponent(GITHUB_BRANCH)}`, { headers: cabecalhosGithub() });
+        if (!GITHUB_API_URL || GITHUB_API_URL === 'COLOCAR_URL_DA_API_VERCEL_AQUI') throw new Error('URL da API de publicação não configurada.');
+        const resposta = await fetch(`${GITHUB_API_URL}?acao=versao`);
         if (!resposta.ok) throw new Error(`Não foi possível baixar a versão atual (${resposta.status}).`);
         const arquivo = await resposta.json();
         const conteudo = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(arquivo.content.replace(/\n/g, '')), caractere => caractere.charCodeAt(0))));
@@ -181,7 +158,7 @@ async function atualizarGithub(json, justificativa, informarProgresso = () => {}
     elementos.formPin.addEventListener('submit', evento => {
         evento.preventDefault();
         if (elementos.pin.value !== PIN_ADMIN) { elementos.mensagemPin.className = 'admin-feedback admin-feedback-error'; elementos.mensagemPin.textContent = 'PIN inválido. Tente novamente.'; elementos.pin.select(); return; }
-        elementos.mensagemPin.className = 'admin-feedback admin-feedback-success'; elementos.mensagemPin.textContent = 'Acesso validado.'; elementos.pin.disabled = true; evento.submitter.disabled = true; elementos.conteudo.hidden = false; atualizarIndicadores(); elementos.arquivo.focus();
+        elementos.mensagemPin.className = 'admin-feedback admin-feedback-success'; elementos.mensagemPin.textContent = 'Acesso validado.'; elementos.pin.disabled = true; evento.submitter.disabled = true; elementos.conteudo.hidden = false; atualizarIndicadores();
     });
 
     elementos.arquivo.addEventListener('change', async () => {
@@ -206,7 +183,7 @@ async function atualizarGithub(json, justificativa, informarProgresso = () => {}
     elementos.confirmar.addEventListener('click', async evento => {
         evento.preventDefault(); elementos.confirmacao.close(); elementos.publicar.disabled = true; elementos.status.className = 'admin-status admin-status-loading';
         const registro = { ...metadadosPlanilha, justificativa: elementos.justificativa.value.trim(), data: Date.now(), status: 'Erro' };
-        try { await atualizarGithub(dadosValidados, registro.justificativa, mensagem => { elementos.status.textContent = mensagem; }); elementos.status.className = 'admin-status admin-status-success'; elementos.status.innerHTML = `✅ Publicação concluída<br><a href="${URL_PUBLICACAO}" target="_blank" rel="noopener">${URL_PUBLICACAO}</a><small class="admin-api-url">URL utilizada: ${urlArquivoGithub()}</small>`; registro.status = 'Publicado'; salvarHistorico(registro); atualizarIndicadores(); }
+        try { await atualizarGithub(dadosValidados, registro.justificativa, mensagem => { elementos.status.textContent = mensagem; }); elementos.status.className = 'admin-status admin-status-success'; elementos.status.innerHTML = `✅ Publicação concluída<br><a href="${URL_PUBLICACAO}" target="_blank" rel="noopener">${URL_PUBLICACAO}</a><small class="admin-api-url">URL utilizada: ${GITHUB_API_URL}</small>`; registro.status = 'Publicado'; salvarHistorico(registro); atualizarIndicadores(); }
         catch (erro) { elementos.status.className = 'admin-status admin-status-error'; elementos.status.textContent = `❌ Erro na publicação: ${erro.message}`; salvarHistorico(registro); }
         finally { elementos.publicar.disabled = false; }
     });
