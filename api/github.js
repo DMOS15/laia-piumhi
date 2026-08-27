@@ -2,12 +2,6 @@ const OWNER = 'dmos15';
 const REPOSITORY = 'laia-piumhi';
 const BRANCH = 'main';
 const FILE = 'dados/LAIA.xlsx';
-const ORIGENS_PERMITIDAS = new Set([
-    'https://dmos15.github.io',
-    'https://laia-piumhi-aad6fz4be-equipe-she.vercel.app',
-    'http://127.0.0.1:5500',
-    'http://localhost:5500'
-]);
 
 function githubUrl() {
     return `https://api.github.com/repos/${OWNER}/${REPOSITORY}/contents/${FILE}`;
@@ -26,14 +20,10 @@ function responder(res, status, body) {
 }
 
 module.exports = async function handler(req, res) {
-    const origem = req.headers.origin;
-    const origemVercelPermitida = typeof origem === 'string' && /^https:\/\/laia-piumhi-[a-z0-9-]+\.vercel\.app$/.test(origem);
-    if (ORIGENS_PERMITIDAS.has(origem) || origemVercelPermitida) res.setHeader('Access-Control-Allow-Origin', origem);
-    res.setHeader('Vary', 'Origin');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
-    res.setHeader('Access-Control-Max-Age', '86400');
-    if (req.method === 'OPTIONS') return res.status(200).json({ ok: true });
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+    if (req.method === 'OPTIONS') return res.status(200).end();
     if (!process.env.GITHUB_TOKEN) return responder(res, 500, { error: 'GITHUB_TOKEN não configurado no servidor.' });
 
     try {
