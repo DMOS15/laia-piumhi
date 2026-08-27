@@ -2,6 +2,11 @@ const OWNER = 'dmos15';
 const REPOSITORY = 'laia-piumhi';
 const BRANCH = 'main';
 const FILE = 'dados/laia.json';
+const ORIGENS_PERMITIDAS = new Set([
+    'https://dmos15.github.io',
+    'http://127.0.0.1:5500',
+    'http://localhost:5500'
+]);
 
 function githubUrl() {
     return `https://api.github.com/repos/${OWNER}/${REPOSITORY}/contents/${FILE}`;
@@ -20,10 +25,12 @@ function responder(res, status, body) {
 }
 
 module.exports = async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || 'https://dmos15.github.io');
+    const origem = req.headers.origin;
+    if (ORIGENS_PERMITIDAS.has(origem)) res.setHeader('Access-Control-Allow-Origin', origem);
+    res.setHeader('Vary', 'Origin');
     res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') return res.status(204).end();
+    if (req.method === 'OPTIONS') return res.status(200).json({ ok: true });
     if (!process.env.GITHUB_TOKEN) return responder(res, 500, { error: 'GITHUB_TOKEN não configurado no servidor.' });
 
     try {
