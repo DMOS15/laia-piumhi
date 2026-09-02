@@ -39,15 +39,15 @@ module.exports = async function handler(req, res) {
         }
 
         if (req.method !== 'PUT') return responder(res, 405, { error: 'Método não permitido.' });
-        const { contentBase64, justificativa } = req.body || {};
-        if (!String(contentBase64 || '').trim() || !String(justificativa || '').trim()) return responder(res, 400, { error: 'Arquivo Excel e justificativa são obrigatórios.' });
+        const { contentBase64, justificativa, nomeResponsavel } = req.body || {};
+        if (!String(contentBase64 || '').trim() || !String(justificativa || '').trim() || !String(nomeResponsavel || '').trim()) return responder(res, 400, { error: 'Arquivo Excel, nome completo do responsável e justificativa são obrigatórios.' });
 
         const consulta = await fetch(`${githubUrl()}?ref=${BRANCH}`, { headers: headers() });
         const arquivoAtual = consulta.status === 404 ? null : await consulta.json();
         if (!consulta.ok && consulta.status !== 404) return responder(res, consulta.status, { error: arquivoAtual?.message || 'Falha ao consultar o arquivo atual.' });
 
         const payload = {
-            message: `Atualização automática do LAIA - ${String(justificativa).trim()}`,
+            message: `Atualização automática do LAIA - ${String(nomeResponsavel).trim()} - ${String(justificativa).trim()}`,
             content: String(contentBase64).replace(/\s/g, ''),
             branch: BRANCH
         };
