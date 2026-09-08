@@ -192,10 +192,6 @@ function criarCard(registro) {
     badge.className = 'badge-significancia';
     badge.textContent = `Inicial: ${textoValor(valorCampo(registro, 'significanciaInicial'))}`;
     card.appendChild(badge);
-    const badgeFinal = document.createElement('span');
-    badgeFinal.className = 'badge-significancia badge-significancia-final';
-    badgeFinal.textContent = `Final: ${textoValor(valorCampo(registro, 'significanciaFinal'))}`;
-    card.appendChild(badgeFinal);
 
     card.appendChild(criarGrupo('Identificação', [
         ['Área', 'area'],
@@ -208,8 +204,7 @@ function criarCard(registro) {
         ['Severidade', 'severidade'],
         ['Probabilidade', 'probabilidade'],
         ['Ranking Inicial', 'rankingInicial', 'ranking-destaque'],
-        ['Significância Inicial', 'significanciaInicial'],
-        ['Significância Final', 'significanciaFinal']
+        ['Significância Inicial', 'significanciaInicial']
     ], registro));
     card.appendChild(criarGrupo('Controles', [
         ['Prevenção', 'prevencao'],
@@ -222,6 +217,7 @@ function criarCard(registro) {
         ['Probabilidade Residual', 'probabilidadeResidual'],
     ], registro);
     grupoResidual.querySelector('.detalhes-lista').appendChild(criarCampoRankingFinal(registro));
+    grupoResidual.querySelector('.detalhes-lista').appendChild(criarCampo('Significância Final', valorCampo(registro, 'significanciaFinal')));
     card.appendChild(grupoResidual);
     card.appendChild(criarGrupo('Objetivos, Metas e Programas', [
         ['Objetivos, Metas e Programas', 'objetivosMetasProgramas']
