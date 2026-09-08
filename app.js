@@ -6,7 +6,7 @@ const botaoBusca = document.querySelector('#botao-busca');
 
 const camposBusca = [
 	'area', 'atividade', 'aspecto', 'impacto', 'prevencao',
-	'monitoramento', 'mitigacao', 'objetivosMetasProgramas'
+	'monitoramento', 'mitigacao', 'significanciaInicial', 'significanciaFinal', 'objetivosMetasProgramas'
 ];
 
 let areas = [];

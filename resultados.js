@@ -4,7 +4,7 @@ const termoBusca = document.querySelector('#termo-busca');
 
 const camposBuscaGlobal = [
     'area', 'atividade', 'aspecto', 'impacto', 'prevencao',
-    'monitoramento', 'mitigacao', 'objetivosMetasProgramas'
+    'monitoramento', 'mitigacao', 'significanciaInicial', 'significanciaFinal', 'objetivosMetasProgramas'
 ];
 
 function textoResultado(valor) {
@@ -13,6 +13,20 @@ function textoResultado(valor) {
 
 function normalizarBusca(valor) {
     return textoResultado(valor).toLocaleLowerCase('pt-BR');
+}
+
+function numeroRanking(valor) {
+    const numero = Number(textoResultado(valor).replace(',', '.').match(/-?\d+(?:\.\d+)?/)?.[0]);
+    return Number.isFinite(numero) ? numero : null;
+}
+
+function compararRankings(registro) {
+    const inicial = numeroRanking(registro.rankingInicial);
+    const final = numeroRanking(registro.rankingFinal);
+    if (inicial === null || final === null) return { estado: 'indisponivel', icone: '', texto: 'Comparação indisponível.' };
+    if (final < inicial) return { estado: 'reduzido', icone: '↓', texto: 'Risco reduzido após aplicação dos controles.' };
+    if (final > inicial) return { estado: 'aumentado', icone: '↑', texto: 'Risco aumentou após avaliação residual.' };
+    return { estado: 'igual', icone: '=', texto: 'Sem alteração no nível de risco.' };
 }
 
 function criarResultado(registro, indice) {
@@ -28,9 +42,17 @@ function criarResultado(registro, indice) {
     resumo.textContent = `${textoResultado(registro.aspecto) || 'Aspecto não informado'} | ${textoResultado(registro.impacto) || 'Impacto não informado'}`;
     const significancia = document.createElement('span');
     significancia.className = 'resultado-significancia';
-    significancia.textContent = textoResultado(registro.significanciaInicial) || 'Significância não informada';
+    const significanciaInicial = textoResultado(registro.significanciaInicial) || 'Não informado';
+    const significanciaFinal = textoResultado(registro.significanciaFinal) || 'Não informado';
+    significancia.textContent = `Inicial: ${significanciaInicial} | Final: ${significanciaFinal}`;
+    const comparacao = compararRankings(registro);
+    const ranking = document.createElement('span');
+    ranking.className = `resultado-ranking resultado-ranking-${comparacao.estado}`;
+    ranking.title = comparacao.texto;
+    ranking.textContent = `Inicial: ${textoResultado(registro.rankingInicial) || 'Não informado'} | Final: ${textoResultado(registro.rankingFinal) || 'Não informado'} ${comparacao.icone}`.trim();
+    ranking.setAttribute('aria-label', `${ranking.textContent}. ${comparacao.texto}`);
 
-    link.append(area, atividade, resumo, significancia);
+    link.append(area, atividade, resumo, significancia, ranking);
     return link;
 }
 

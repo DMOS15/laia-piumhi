@@ -49,6 +49,7 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, me
         nomeareaprocesso: 'area', atividade: 'atividade', aspecto: 'aspecto', impacto: 'impacto',
         frequencia: 'frequencia', severidade: 'severidade', probabilidade: 'probabilidade',
         rankinginicial: 'rankingInicial', significanciainicial: 'significanciaInicial',
+        significanciafinal: 'significanciaFinal',
         prevencao: 'prevencao', monitoramento: 'monitoramento', mitigacao: 'mitigacao',
         frequenciaresidual: 'frequenciaResidual', severidaderesidual: 'severidadeResidual',
         probabilidaderesidual: 'probabilidadeResidual', rankingfinal: 'rankingFinal',

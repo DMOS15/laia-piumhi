@@ -11,7 +11,7 @@ const camposFiltro = {
     'filtro-atividade': ['atividade'],
     'filtro-aspecto': ['aspecto'],
     'filtro-impacto': ['impacto'],
-    'filtro-significancia': ['significancia', 'significância', 'significancia inicial', 'significância inicial']
+    'filtro-significancia': ['significancia', 'significância', 'significancia inicial', 'significância inicial', 'significancia final', 'significância final']
 };
 
 const aliasesCampos = {
@@ -19,12 +19,13 @@ const aliasesCampos = {
     atividade: ['atividade'],
     aspecto: ['aspecto'],
     impacto: ['impacto'],
-    significancia: ['significancia', 'significância', 'significancia inicial', 'significância inicial'],
+    significancia: ['significancia', 'significância', 'significancia inicial', 'significância inicial', 'significancia final', 'significância final'],
     frequencia: ['frequencia', 'frequência'],
     severidade: ['severidade'],
     probabilidade: ['probabilidade'],
     rankingInicial: ['ranking inicial', 'ranking_inicial', 'rankingInicial'],
     significanciaInicial: ['significancia inicial', 'significância inicial', 'significancia', 'significância'],
+    significanciaFinal: ['significancia final', 'significância final'],
     prevencao: ['prevencao', 'prevenção'],
     monitoramento: ['monitoramento'],
     mitigacao: ['mitigacao', 'mitigação'],
@@ -72,6 +73,20 @@ function valorCampo(registro, campo) {
     return obterValor(registro, aliasesCampos[campo]);
 }
 
+function numeroRanking(valor) {
+    const numero = Number(String(valor ?? '').replace(',', '.').match(/-?\d+(?:\.\d+)?/)?.[0]);
+    return Number.isFinite(numero) ? numero : null;
+}
+
+function compararRankings(registro) {
+    const inicial = numeroRanking(valorCampo(registro, 'rankingInicial'));
+    const final = numeroRanking(valorCampo(registro, 'rankingFinal'));
+    if (inicial === null || final === null) return { estado: 'indisponivel', icone: '', texto: 'Comparação indisponível.' };
+    if (final < inicial) return { estado: 'reduzido', icone: '↓', texto: 'Risco reduzido após aplicação dos controles.' };
+    if (final > inicial) return { estado: 'aumentado', icone: '↑', texto: 'Risco aumentou após avaliação residual.' };
+    return { estado: 'igual', icone: '=', texto: 'Sem alteração no nível de risco.' };
+}
+
 function valorParaFiltro(registro, nomes) {
     if (nomes.length > 1 && nomes.includes('prevencao')) {
         return [
@@ -85,6 +100,13 @@ function valorParaFiltro(registro, nomes) {
 }
 
 function valoresDisponiveisParaFiltro(nomes) {
+    if (nomes.includes('significancia final')) {
+        return atividades.flatMap(registro => [
+            textoValor(valorCampo(registro, 'significanciaInicial')),
+            textoValor(valorCampo(registro, 'significanciaFinal'))
+        ]);
+    }
+
     if (nomes.length > 1 && nomes.includes('prevencao')) {
         return atividades.flatMap(registro => [
             textoValor(valorCampo(registro, 'prevencao')),
@@ -125,6 +147,23 @@ function criarCampo(titulo, valor, classe = '') {
     return item;
 }
 
+function criarCampoRankingFinal(registro) {
+    const comparacao = compararRankings(registro);
+    const item = criarCampo('Ranking Final', valorCampo(registro, 'rankingFinal'), 'ranking-destaque ranking-final');
+    const conteudo = item.querySelector('dd');
+    conteudo.classList.add(`ranking-${comparacao.estado}`);
+    conteudo.title = comparacao.texto;
+    conteudo.setAttribute('aria-label', `${textoValor(valorCampo(registro, 'rankingFinal'))}. ${comparacao.texto}`);
+    if (comparacao.icone) {
+        const indicador = document.createElement('span');
+        indicador.className = 'ranking-indicador';
+        indicador.textContent = comparacao.icone;
+        indicador.setAttribute('aria-hidden', 'true');
+        conteudo.append(' ', indicador);
+    }
+    return item;
+}
+
 function criarGrupo(titulo, campos, registro) {
     const grupo = document.createElement('section');
     grupo.className = 'detalhe-grupo';
@@ -151,8 +190,12 @@ function criarCard(registro) {
 
     const badge = document.createElement('span');
     badge.className = 'badge-significancia';
-    badge.textContent = textoValor(valorCampo(registro, 'significanciaInicial'));
+    badge.textContent = `Inicial: ${textoValor(valorCampo(registro, 'significanciaInicial'))}`;
     card.appendChild(badge);
+    const badgeFinal = document.createElement('span');
+    badgeFinal.className = 'badge-significancia badge-significancia-final';
+    badgeFinal.textContent = `Final: ${textoValor(valorCampo(registro, 'significanciaFinal'))}`;
+    card.appendChild(badgeFinal);
 
     card.appendChild(criarGrupo('Identificação', [
         ['Área', 'area'],
@@ -165,19 +208,21 @@ function criarCard(registro) {
         ['Severidade', 'severidade'],
         ['Probabilidade', 'probabilidade'],
         ['Ranking Inicial', 'rankingInicial', 'ranking-destaque'],
-        ['Significância Inicial', 'significanciaInicial']
+        ['Significância Inicial', 'significanciaInicial'],
+        ['Significância Final', 'significanciaFinal']
     ], registro));
     card.appendChild(criarGrupo('Controles', [
         ['Prevenção', 'prevencao'],
         ['Monitoramento', 'monitoramento'],
         ['Mitigação', 'mitigacao']
     ], registro));
-    card.appendChild(criarGrupo('Risco Residual', [
+    const grupoResidual = criarGrupo('Risco Residual', [
         ['Frequência Residual', 'frequenciaResidual'],
         ['Severidade Residual', 'severidadeResidual'],
         ['Probabilidade Residual', 'probabilidadeResidual'],
-        ['Ranking Final', 'rankingFinal', 'ranking-destaque']
-    ], registro));
+    ], registro);
+    grupoResidual.querySelector('.detalhes-lista').appendChild(criarCampoRankingFinal(registro));
+    card.appendChild(grupoResidual);
     card.appendChild(criarGrupo('Objetivos, Metas e Programas', [
         ['Objetivos, Metas e Programas', 'objetivosMetasProgramas']
     ], registro));
@@ -210,6 +255,12 @@ function renderizarAtividades() {
         Object.entries(camposFiltro).every(([id, nomes]) => {
             const filtro = filtros[id];
             if (!filtro) return true;
+            if (id === 'filtro-significancia') {
+                return [
+                    textoValor(valorCampo(registro, 'significanciaInicial')),
+                    textoValor(valorCampo(registro, 'significanciaFinal'))
+                ].some(valor => valor.toLocaleLowerCase('pt-BR') === filtro);
+            }
             return valorParaFiltro(registro, nomes).toLocaleLowerCase('pt-BR') === filtro;
         })
     );

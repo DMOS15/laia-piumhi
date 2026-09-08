@@ -204,10 +204,15 @@ main{
 .botao-ver-area{margin-top:18px;}
 
 .resultados-container{display:grid;gap:12px;}
-.resultado-item{display:grid;grid-template-columns:1fr 1.4fr 1.5fr 1fr;gap:14px;align-items:center;padding:18px;background:#fff;border-left:5px solid #4a1d0f;border-radius:8px;box-shadow:0 2px 9px rgba(0,0,0,.08);color:#263238;text-decoration:none;}
+.resultado-item{display:grid;grid-template-columns:1fr 1.4fr 1.5fr 1fr 1.3fr;gap:14px;align-items:center;padding:18px;background:#fff;border-left:5px solid #4a1d0f;border-radius:8px;box-shadow:0 2px 9px rgba(0,0,0,.08);color:#263238;text-decoration:none;}
 .resultado-item:hover{box-shadow:0 5px 16px rgba(0,0,0,.14);transform:translateY(-2px);}
 .resultado-item span{overflow-wrap:anywhere;}
 .resultado-significancia{font-weight:700;}
+.resultado-ranking{font-weight:800;border-radius:999px;padding:8px 10px;background:#f1f3f4;}
+.resultado-ranking-reduzido{color:#176b3a;background:#dff3e7;}
+.resultado-ranking-aumentado{color:#a3291d;background:#fbe3df;}
+.resultado-ranking-igual{color:#566168;background:#eef1f2;}
+.resultado-ranking-indisponivel{color:#66737a;background:#f5f7f8;}
 .termo-busca{font-size:17px;opacity:.9;}
 
 .pagina-area{
@@ -382,6 +387,11 @@ main{
     font-size:1.25rem;
     font-weight:800;
 }
+.ranking-indicador{display:inline-grid;place-items:center;min-width:24px;height:24px;margin-left:6px;border-radius:999px;font-size:1rem;line-height:1;}
+.ranking-reduzido{color:#176b3a;background:#dff3e7;}
+.ranking-aumentado{color:#a3291d;background:#fbe3df;}
+.ranking-igual{color:#566168;background:#eef1f2;}
+.ranking-indisponivel{color:#66737a;background:#f5f7f8;}
 
 .atividade-card.significancia-verde{border-left-color:#2e8b57;}
 .atividade-card.significancia-amarela{border-left-color:#d7a400;}
@@ -532,7 +542,7 @@ main{
 @media (min-width:1280px){
     header{padding:26px 48px;}
     .cards-container{grid-template-columns:repeat(5, minmax(0, 1fr));}
-    .resultado-item{grid-template-columns:1.1fr 1.4fr 1.8fr 1fr;}
+    .resultado-item{grid-template-columns:1.1fr 1.4fr 1.8fr 1fr 1.3fr;}
 }
 
 /* Painel administrativo */

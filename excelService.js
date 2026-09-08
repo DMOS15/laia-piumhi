@@ -12,6 +12,7 @@
         probabilidade: 'probabilidade',
         rankinginicial: 'rankingInicial',
         significanciainicial: 'significanciaInicial',
+        significanciafinal: 'significanciaFinal',
         prevencao: 'prevencao',
         monitoramento: 'monitoramento',
         mitigacao: 'mitigacao',
