@@ -4,8 +4,9 @@ import {
 } from './config.js';
 
 const URL_PUBLICACAO = 'https://dmos15.github.io/laia-piumhi/';
-const CHAVE_HISTORICO = 'laiaHistoricoAtualizacoes';
 const VERSAO_SISTEMA = '1.0.0';
+const URL_HISTORICO = new URL('./dados/historico.json', document.baseURI).href;
+const URL_CONFIGURACOES = new URL('./dados/configuracoes.json', document.baseURI).href;
 
 async function obterShaAtual() {
     if (!GITHUB_API_URL || GITHUB_API_URL === 'COLOCAR_URL_DA_API_VERCEL_AQUI') throw new Error('URL da API de publicação não configurada.');
@@ -21,7 +22,7 @@ function converterParaBase64(bytes) {
     return btoa(binario);
 }
 
-async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, informarProgresso = () => {}) {
+async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, metadados, informarProgresso = () => {}) {
     informarProgresso('1/3 Buscando a versão atual no GitHub...');
     const shaAtual = await obterShaAtual();
     informarProgresso(shaAtual ? '✅ Arquivo existente encontrado.' : '✅ Criando novo LAIA.xlsx.');
@@ -31,7 +32,7 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, in
     const resposta = await fetch(GITHUB_API_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contentBase64: arquivoBase64, justificativa, nomeResponsavel, sha: shaAtual })
+            body: JSON.stringify({ contentBase64: arquivoBase64, justificativa, nomeResponsavel, arquivo: metadados.arquivo, registros: metadados.registros, areas: metadados.areas, sha: shaAtual })
     });
     if (!resposta.ok) throw new Error(`Não foi possível publicar no GitHub (${resposta.status}). URL: ${GITHUB_API_URL}`);
     return resposta.json();
@@ -99,28 +100,43 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, in
         return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(data));
     }
 
-    function obterHistorico() {
-        try { return JSON.parse(localStorage.getItem(CHAVE_HISTORICO) || '[]'); } catch { return []; }
+    async function obterHistorico() {
+        const resposta = await fetch(URL_HISTORICO, { cache: 'no-store' });
+        if (!resposta.ok) throw new Error(`Não foi possível carregar o histórico (${resposta.status}).`);
+        const historico = await resposta.json();
+        return Array.isArray(historico) ? historico : [];
     }
 
-    function salvarHistorico(registro) {
-        localStorage.setItem(CHAVE_HISTORICO, JSON.stringify([registro, ...obterHistorico()].slice(0, 50)));
+    async function obterConfiguracoes() {
+        const resposta = await fetch(URL_CONFIGURACOES, { cache: 'no-store' });
+        if (!resposta.ok) throw new Error(`Não foi possível carregar as configurações (${resposta.status}).`);
+        return resposta.json();
     }
 
-    function atualizarIndicadores() {
-        const ultimo = obterHistorico().find(item => item.status === 'Publicado');
-        document.querySelector('#indicador-data').textContent = ultimo ? formatarData(ultimo.data) : 'Ainda não carregada';
-        document.querySelector('#indicador-arquivo').textContent = ultimo?.arquivo || 'Nenhum registro';
-        document.querySelector('#indicador-registros').textContent = ultimo?.registros || '0';
-        document.querySelector('#indicador-areas').textContent = ultimo?.areas || '0';
-        document.querySelector('#indicador-justificativa').textContent = ultimo?.justificativa || 'Nenhum registro';
-        document.querySelector('#indicador-versao').textContent = VERSAO_SISTEMA;
+    async function atualizarIndicadores() {
+        try {
+            const [configuracoes, historico] = await Promise.all([obterConfiguracoes(), obterHistorico()]);
+            const ultimo = historico.find(item => item.status === 'Publicado');
+            document.querySelector('#indicador-data').textContent = configuracoes.ultimaAtualizacao ? formatarData(configuracoes.ultimaAtualizacao) : 'Ainda não carregada';
+            document.querySelector('#indicador-arquivo').textContent = configuracoes.ultimoArquivo || 'Nenhum registro';
+            document.querySelector('#indicador-registros').textContent = ultimo?.quantidadeRegistros || '0';
+            document.querySelector('#indicador-areas').textContent = ultimo?.quantidadeAreas || '0';
+            document.querySelector('#indicador-justificativa').textContent = configuracoes.ultimaJustificativa || 'Nenhum registro';
+            document.querySelector('#indicador-versao').textContent = configuracoes.versaoSistema || VERSAO_SISTEMA;
+        } catch (erro) {
+            elementos.status.textContent = `Não foi possível carregar os dados administrativos: ${erro.message}`;
+        }
     }
 
-    function mostrarHistorico() {
-        const registros = obterHistorico();
-        elementos.listaHistorico.innerHTML = registros.length ? registros.map(item => `<article class="admin-history-item"><div><strong>${item.status === 'Publicado' ? '✅ Publicado' : '❌ Erro'}</strong><time>${formatarData(item.data)}</time></div><p><b>Arquivo:</b> ${escaparHtml(item.arquivo)}</p><p><b>Registros:</b> ${escaparHtml(item.registros)} &nbsp; <b>Áreas:</b> ${escaparHtml(item.areas)}</p><p><b>Responsável:</b> ${escaparHtml(item.nomeResponsavel || 'Não informado')}</p><p><b>Justificativa:</b> ${escaparHtml(item.justificativa)}</p></article>`).join('') : '<p class="admin-empty">Nenhuma atualização registrada.</p>';
-        elementos.modalHistorico.showModal();
+    async function mostrarHistorico() {
+        try {
+            const registros = await obterHistorico();
+            elementos.listaHistorico.innerHTML = registros.length ? registros.map(item => `<article class="admin-history-item"><div><strong>${item.status === 'Publicado' ? '✅ Publicado' : '❌ Erro'}</strong><time>${escaparHtml(`${item.data || ''} ${item.hora || ''}`.trim())}</time></div><p><b>Arquivo:</b> ${escaparHtml(item.arquivo)}</p><p><b>Registros:</b> ${escaparHtml(item.quantidadeRegistros)} &nbsp; <b>Áreas:</b> ${escaparHtml(item.quantidadeAreas)}</p><p><b>Responsável:</b> ${escaparHtml(item.nomeResponsavel || 'Não informado')}</p><p><b>Justificativa:</b> ${escaparHtml(item.justificativa)}</p></article>`).join('') : '<p class="admin-empty">Nenhuma atualização registrada.</p>';
+            elementos.modalHistorico.showModal();
+        } catch (erro) {
+            elementos.listaHistorico.innerHTML = `<p class="admin-empty">${escaparHtml(erro.message)}</p>`;
+            elementos.modalHistorico.showModal();
+        }
     }
 
     async function obterVersaoAtual() {
@@ -183,9 +199,10 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, in
 
     elementos.confirmar.addEventListener('click', async evento => {
         evento.preventDefault(); elementos.confirmacao.close(); elementos.publicar.disabled = true; elementos.status.className = 'admin-status admin-status-loading';
-        const registro = { ...metadadosPlanilha, nomeResponsavel: elementos.nomeResponsavel.value.trim(), justificativa: elementos.justificativa.value.trim(), data: Date.now(), status: 'Erro' };
-        try { await atualizarGithub(arquivoBase64, registro.justificativa, registro.nomeResponsavel, mensagem => { elementos.status.textContent = mensagem; }); elementos.status.className = 'admin-status admin-status-success'; elementos.status.innerHTML = `✅ Arquivo publicado com sucesso<br><a href="${URL_PUBLICACAO}" target="_blank" rel="noopener">${URL_PUBLICACAO}</a><small class="admin-api-url">URL utilizada: ${GITHUB_API_URL}</small>`; registro.status = 'Publicado'; salvarHistorico(registro); atualizarIndicadores(); }
-        catch (erro) { elementos.status.className = 'admin-status admin-status-error'; elementos.status.textContent = `❌ Erro na publicação: ${erro.message}`; salvarHistorico(registro); }
+        const nomeResponsavel = elementos.nomeResponsavel.value.trim();
+        const justificativa = elementos.justificativa.value.trim();
+        try { await atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, metadadosPlanilha, mensagem => { elementos.status.textContent = mensagem; }); elementos.status.className = 'admin-status admin-status-success'; elementos.status.innerHTML = `✅ Arquivo publicado com sucesso<br><a href="${URL_PUBLICACAO}" target="_blank" rel="noopener">${URL_PUBLICACAO}</a><small class="admin-api-url">URL utilizada: ${GITHUB_API_URL}</small>`; await atualizarIndicadores(); }
+        catch (erro) { elementos.status.className = 'admin-status admin-status-error'; elementos.status.textContent = `❌ Erro na publicação: ${erro.message}`; }
         finally { elementos.publicar.disabled = false; }
     });
 

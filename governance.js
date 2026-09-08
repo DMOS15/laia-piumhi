@@ -1,10 +1,4 @@
-const versaoSistema = "1.0.0";
-const dataUltimaAtualizacao = "24/08/2026";
-
-window.LAIA_CONFIG = {
-    versaoSistema,
-    dataUltimaAtualizacao
-};
+const URL_CONFIGURACOES = new URL('./dados/configuracoes.json', document.baseURI).href;
 
 (function () {
     const elementos = {
@@ -20,8 +14,25 @@ window.LAIA_CONFIG = {
         });
     }
 
-    preencher(elementos.versao, versaoSistema);
-    preencher(elementos.atualizacao, dataUltimaAtualizacao);
+    fetch(URL_CONFIGURACOES, { cache: 'no-store' })
+        .then(resposta => {
+            if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+            return resposta.json();
+        })
+        .then(configuracoes => {
+            const versaoSistema = configuracoes.versaoSistema || 'Não disponível';
+            const dataUltimaAtualizacao = configuracoes.ultimaAtualizacao
+                ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(configuracoes.ultimaAtualizacao))
+                : 'Ainda não carregada';
+            window.LAIA_CONFIG = { versaoSistema, dataUltimaAtualizacao };
+            preencher(elementos.versao, versaoSistema);
+            preencher(elementos.atualizacao, dataUltimaAtualizacao);
+        })
+        .catch(erro => {
+            console.error('[LAIA] Não foi possível carregar as configurações compartilhadas.', erro);
+            preencher(elementos.versao, 'Não disponível');
+            preencher(elementos.atualizacao, 'Não disponível');
+        });
 
     ExcelService.carregarDados()
         .then(dados => {
