@@ -39,14 +39,10 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, me
 }
 
 (function () {
-    const colunasObrigatorias = [
-        'Nome Área/Processo', 'Atividade', 'Aspecto', 'Impacto', 'Frequência', 'Severidade',
-        'Probabilidade', 'Ranking Inicial', 'Significância Inicial', 'Prevenção', 'Monitoramento',
-        'Mitigação', 'Frequência_Residual', 'Severidade_Residual', 'Probabilidade_Residual',
-        'Ranking Final', 'Objetivos, Metas e Programas'
-    ];
     const mapaColunas = {
+        perspectivadeciclodevida: 'perspectivaCicloVida',
         nomeareaprocesso: 'area', atividade: 'atividade', aspecto: 'aspecto', impacto: 'impacto',
+        unidadefabril: 'unidadeFabril',
         frequencia: 'frequencia', severidade: 'severidade', probabilidade: 'probabilidade',
         rankinginicial: 'rankingInicial', significanciainicial: 'significanciaInicial',
         significanciafinal: 'significanciaFinal',
@@ -148,7 +144,8 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, me
         const bytes = Uint8Array.from(atob(arquivo.content.replace(/\n/g, '')), caractere => caractere.charCodeAt(0));
         const workbook = XLSX.read(bytes, { type: 'array' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const linhas = XLSX.utils.sheet_to_json(worksheet, { defval: '', raw: true, range: 5 });
+        if (!worksheet) throw new Error('O arquivo Excel não possui uma aba para leitura.');
+        const { linhas } = ExcelService.lerPlanilha(worksheet);
         const resumo = estatisticas(converter(linhas));
         const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); link.download = 'LAIA.xlsx'; link.click(); URL.revokeObjectURL(link.href);
         document.querySelector('#painel-versao-atual').hidden = false;
@@ -161,13 +158,15 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, me
         const workbook = XLSX.read(await arquivo.arrayBuffer(), { type: 'array' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         if (!worksheet) throw new Error('O arquivo Excel não possui uma aba para leitura.');
-        const linhasCabecalho = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', raw: true });
-        const obrigatorias = new Set(colunasObrigatorias.map(normalizar));
-        const indice = linhasCabecalho.findIndex(linha => [...obrigatorias].every(coluna => new Set(linha.map(normalizar)).has(coluna)));
-        if (indice === -1) return { dados: [], erros: ['As 17 colunas obrigatórias não foram encontradas na mesma linha.'] };
-        const linhas = XLSX.utils.sheet_to_json(worksheet, { defval: '', raw: true, range: indice });
-        const cabecalhos = linhas.length ? Object.keys(linhas[0]).map(normalizar) : [];
-        const erros = colunasObrigatorias.filter(coluna => !cabecalhos.includes(normalizar(coluna))).map(coluna => `Coluna obrigatória ausente: ${coluna}`);
+        let planilha;
+        try {
+            planilha = ExcelService.lerPlanilha(worksheet);
+        } catch (erro) {
+            return { dados: [], erros: [erro.message] };
+        }
+        const { cabecalhos, linhas } = planilha;
+        const colunasFaltando = ExcelService.validarEstruturaExcel(cabecalhos);
+        const erros = colunasFaltando.map(coluna => `Coluna obrigatória ausente: ${coluna}`);
         const dados = converter(linhas);
         if (!dados.length) erros.push('Nenhum registro preenchido foi encontrado após o cabeçalho.');
         return { dados, erros };

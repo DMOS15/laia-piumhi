@@ -3,7 +3,9 @@
     let dadosCompartilhados = null;
 
     const mapaColunas = {
+        perspectivadeciclodevida: 'perspectivaCicloVida',
         nomeareaprocesso: 'area',
+        unidadefabril: 'unidadeFabril',
         atividade: 'atividade',
         aspecto: 'aspecto',
         impacto: 'impacto',
@@ -25,11 +27,10 @@
 
     const propriedades = [...new Set(Object.values(mapaColunas))];
     const colunasObrigatorias = [
-        'Nome Área/Processo', 'Atividade', 'Aspecto', 'Impacto',
-        'Frequência', 'Severidade', 'Probabilidade', 'Ranking Inicial',
-        'Significância Inicial', 'Prevenção', 'Monitoramento', 'Mitigação',
-        'Frequência_Residual', 'Severidade_Residual', 'Probabilidade_Residual',
-        'Ranking Final', 'Objetivos, Metas e Programas'
+        'PERSPECTIVA DE CICLO DE VIDA', 'NOME ÁREA/ PROCESSO', 'UNIDADE FABRIL',
+        'ATIVIDADE', 'ASPECTO', 'IMPACTO', 'RANKING INICIAL',
+        'SIGNIFICÂNCIA INICIAL', 'PREVENÇÃO', 'MONITORAMENTO', 'MITIGAÇÃO',
+        'RANKING FINAL', 'SIGNIFICÂNCIA FINAL', 'OBJETIVOS, METAS E PROGRAMAS'
     ];
 
     function normalizarCabecalho(valor) {
@@ -58,6 +59,30 @@
         }
 
         return colunasFaltando;
+    }
+
+    function lerPlanilha(worksheet) {
+        const linhasCabecalho = XLSX.utils.sheet_to_json(worksheet, {
+            header: 1,
+            defval: '',
+            raw: true
+        });
+        const indiceCabecalho = linhasCabecalho.findIndex(linha =>
+            linha.some(celula => normalizarCabecalho(celula) === 'nomeareaprocesso')
+        );
+
+        if (indiceCabecalho === -1) {
+            throw new Error('A coluna "NOME ÁREA/ PROCESSO" não foi encontrada na planilha.');
+        }
+
+        return {
+            cabecalhos: linhasCabecalho[indiceCabecalho],
+            linhas: XLSX.utils.sheet_to_json(worksheet, {
+                defval: '',
+                raw: true,
+                range: indiceCabecalho
+            })
+        };
     }
 
     function converterLinhas(linhas) {
@@ -95,14 +120,7 @@
         const primeiraAba = workbook.Sheets[workbook.SheetNames[0]];
         if (!primeiraAba) throw new Error('O arquivo Excel não possui abas.');
 
-        // A planilha possui título e espaços vazios nas cinco primeiras linhas.
-        // No SheetJS, a linha 6 corresponde ao índice 5 e contém os cabeçalhos.
-        const linhas = XLSX.utils.sheet_to_json(primeiraAba, {
-            defval: '',
-            raw: true,
-            range: 5
-        });
-        const cabecalhos = linhas.length > 0 ? Object.keys(linhas[0]) : [];
+        const { cabecalhos, linhas } = lerPlanilha(primeiraAba);
         const areas = new Set();
 
         validarEstruturaExcel(cabecalhos);
@@ -121,6 +139,8 @@
     window.ExcelService = {
         carregarDados,
         converterLinhas,
+        lerPlanilha,
+        colunasObrigatorias,
         normalizarCabecalho,
         validarEstruturaExcel
     };
