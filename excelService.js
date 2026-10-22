@@ -32,6 +32,10 @@
         'SIGNIFICÂNCIA INICIAL', 'PREVENÇÃO', 'MONITORAMENTO', 'MITIGAÇÃO',
         'RANKING FINAL', 'SIGNIFICÂNCIA FINAL', 'OBJETIVOS, METAS E PROGRAMAS'
     ];
+    const colunasOpcionais = [
+        'FREQUÊNCIA', 'SEVERIDADE', 'PROBABILIDADE',
+        'FREQUÊNCIA RESIDUAL', 'SEVERIDADE RESIDUAL', 'PROBABILIDADE RESIDUAL'
+    ];
 
     function normalizarCabecalho(valor) {
         return String(valor ?? '')
@@ -141,6 +145,7 @@
         converterLinhas,
         lerPlanilha,
         colunasObrigatorias,
+        colunasOpcionais,
         normalizarCabecalho,
         validarEstruturaExcel
     };

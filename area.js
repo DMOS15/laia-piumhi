@@ -7,15 +7,22 @@ const ordenacaoAtividades = document.querySelector('#ordenacao-atividades');
 let atividades = [];
 
 const camposFiltro = {
-
     'filtro-atividade': ['atividade'],
     'filtro-aspecto': ['aspecto'],
     'filtro-impacto': ['impacto'],
-    'filtro-significancia': ['significancia', 'significância', 'significancia inicial', 'significância inicial', 'significancia final', 'significância final']
+    'filtro-significancia': ['significancia', 'significância', 'significancia inicial', 'significância inicial', 'significancia final', 'significância final'],
+    'filtro-frequencia': ['frequencia', 'frequência'],
+    'filtro-severidade': ['severidade'],
+    'filtro-probabilidade': ['probabilidade'],
+    'filtro-frequencia-residual': ['frequencia residual', 'frequência residual'],
+    'filtro-severidade-residual': ['severidade residual'],
+    'filtro-probabilidade-residual': ['probabilidade residual']
 };
 
 const aliasesCampos = {
     area: ['area', 'área'],
+    perspectivaCicloVida: ['perspectiva ciclo de vida', 'perspectivaCicloVida'],
+    unidadeFabril: ['unidade fabril', 'unidadeFabril'],
     atividade: ['atividade'],
     aspecto: ['aspecto'],
     impacto: ['impacto'],
@@ -194,7 +201,9 @@ function criarCard(registro) {
     card.appendChild(badge);
 
     card.appendChild(criarGrupo('Identificação', [
+        ['Perspectiva de Ciclo de Vida', 'perspectivaCicloVida'],
         ['Área', 'area'],
+        ['Unidade Fabril', 'unidadeFabril'],
         ['Atividade', 'atividade'],
         ['Aspecto', 'aspecto'],
         ['Impacto', 'impacto']

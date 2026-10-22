@@ -3,8 +3,11 @@ const statusResultados = document.querySelector('#status-resultados');
 const termoBusca = document.querySelector('#termo-busca');
 
 const camposBuscaGlobal = [
-    'area', 'atividade', 'aspecto', 'impacto', 'prevencao',
-    'monitoramento', 'mitigacao', 'significanciaInicial', 'significanciaFinal', 'objetivosMetasProgramas'
+    'perspectivaCicloVida', 'area', 'unidadeFabril', 'atividade', 'aspecto', 'impacto',
+    'frequencia', 'severidade', 'probabilidade', 'prevencao', 'monitoramento', 'mitigacao',
+    'frequenciaResidual', 'severidadeResidual', 'probabilidadeResidual',
+    'rankingInicial', 'significanciaInicial', 'rankingFinal', 'significanciaFinal',
+    'objetivosMetasProgramas'
 ];
 
 function textoResultado(valor) {

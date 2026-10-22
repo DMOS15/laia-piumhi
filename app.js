@@ -5,8 +5,11 @@ const filtroRisco = document.querySelector('#filtro-risco');
 const botaoBusca = document.querySelector('#botao-busca');
 
 const camposBusca = [
-	'area', 'atividade', 'aspecto', 'impacto', 'prevencao',
-	'monitoramento', 'mitigacao', 'significanciaInicial', 'significanciaFinal', 'objetivosMetasProgramas'
+	'perspectivaCicloVida', 'area', 'unidadeFabril', 'atividade', 'aspecto', 'impacto',
+	'frequencia', 'severidade', 'probabilidade', 'prevencao', 'monitoramento', 'mitigacao',
+	'frequenciaResidual', 'severidadeResidual', 'probabilidadeResidual',
+	'rankingInicial', 'significanciaInicial', 'rankingFinal', 'significanciaFinal',
+	'objetivosMetasProgramas'
 ];
 
 let areas = [];
