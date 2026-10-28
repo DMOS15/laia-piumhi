@@ -1,5 +1,15 @@
 [
   {
+    "data": "28/10/2026",
+    "hora": "15:53",
+    "arquivo": "LAIA.xlsx",
+    "quantidadeRegistros": 153,
+    "quantidadeAreas": 24,
+    "justificativa": "Revisão da avaliação dos fatores dos impactos",
+    "nomeResponsavel": "Samuel Camargos",
+    "status": "Publicado"
+  },
+  {
     "data": "27/10/2026",
     "hora": "16:24",
     "arquivo": "PIU - LAIA.xlsx",
