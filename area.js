@@ -80,20 +80,6 @@ function valorCampo(registro, campo) {
     return obterValor(registro, aliasesCampos[campo]);
 }
 
-function numeroRanking(valor) {
-    const numero = Number(String(valor ?? '').replace(',', '.').match(/-?\d+(?:\.\d+)?/)?.[0]);
-    return Number.isFinite(numero) ? numero : null;
-}
-
-function compararRankings(registro) {
-    const inicial = numeroRanking(valorCampo(registro, 'rankingInicial'));
-    const final = numeroRanking(valorCampo(registro, 'rankingFinal'));
-    if (inicial === null || final === null) return { estado: 'indisponivel', icone: '', texto: 'Comparação indisponível.' };
-    if (final < inicial) return { estado: 'reduzido', icone: '↓', texto: 'Risco reduzido após aplicação dos controles.' };
-    if (final > inicial) return { estado: 'aumentado', icone: '↑', texto: 'Risco aumentou após avaliação residual.' };
-    return { estado: 'igual', icone: '=', texto: 'Sem alteração no nível de risco.' };
-}
-
 function valorParaFiltro(registro, nomes) {
     if (nomes.length > 1 && nomes.includes('prevencao')) {
         return [
@@ -155,19 +141,39 @@ function criarCampo(titulo, valor, classe = '') {
 }
 
 function criarCampoRankingFinal(registro) {
-    const comparacao = compararRankings(registro);
+    const rankingInicial = valorCampo(registro, 'rankingInicial');
+    const rankingFinal = valorCampo(registro, 'rankingFinal');
+    const comparacao = compararRanking(rankingInicial, rankingFinal);
     const item = criarCampo('Ranking Final', valorCampo(registro, 'rankingFinal'), 'ranking-destaque ranking-final');
     const conteudo = item.querySelector('dd');
-    conteudo.classList.add(`ranking-${comparacao.estado}`);
-    conteudo.title = comparacao.texto;
-    conteudo.setAttribute('aria-label', `${formatarNumero(textoValor(valorCampo(registro, 'rankingFinal')))}. ${comparacao.texto}`);
-    if (comparacao.icone) {
-        const indicador = document.createElement('span');
-        indicador.className = 'ranking-indicador';
-        indicador.textContent = comparacao.icone;
-        indicador.setAttribute('aria-hidden', 'true');
-        conteudo.append(' ', indicador);
+    if (!comparacao) return item;
+
+    const rankingFormatado = formatarNumero(textoValor(rankingFinal));
+    const badge = document.createElement('span');
+    badge.className = `ranking-badge ranking-badge-${comparacao.tipo}`;
+    badge.textContent = `${rankingFormatado} ${comparacao.icone}`;
+
+    const descricao = document.createElement('span');
+    descricao.className = 'ranking-descricao';
+    descricao.textContent = comparacao.mensagem;
+
+    conteudo.replaceChildren(badge, descricao);
+    conteudo.classList.add(`ranking-${comparacao.tipo}`);
+    conteudo.style.setProperty('--ranking-cor', comparacao.cor);
+    conteudo.title = comparacao.mensagem;
+
+    let textoVariacao = '';
+    if (comparacao.tipo !== 'igual') {
+        const variacao = document.createElement('span');
+        variacao.className = 'ranking-variacao';
+        const rotulo = comparacao.tipo === 'melhorou' ? 'Redução' : 'Aumento';
+        variacao.textContent = comparacao.percentualVariacao === null
+            ? `${rotulo}: não aplicável (Ranking Inicial igual a zero)`
+            : `${rotulo}: ${formatarNumero(comparacao.percentualVariacao)}%`;
+        textoVariacao = variacao.textContent;
+        conteudo.appendChild(variacao);
     }
+    conteudo.setAttribute('aria-label', `${rankingFormatado}. ${comparacao.icone}. ${comparacao.mensagem}${textoVariacao ? ` ${textoVariacao}` : ''}`);
     return item;
 }
 
@@ -192,7 +198,7 @@ function criarCard(registro) {
     card.dataset.atividade = textoValor(valorCampo(registro, 'atividade'));
 
     const titulo = document.createElement('h2');
-    titulo.textContent = textoValor(valorCampo(registro, 'atividade'));
+    titulo.textContent = formatarNumero(textoValor(valorCampo(registro, 'atividade')));
     card.appendChild(titulo);
 
     const badge = document.createElement('span');
