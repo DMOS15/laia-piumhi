@@ -65,7 +65,7 @@ function criarResumoItem(textoItem, valor, classe = '') {
 	const item = document.createElement('span');
 	item.className = classe;
 	const destaque = document.createElement('strong');
-	destaque.textContent = valor;
+	destaque.textContent = formatarNumero(valor);
 	item.append(destaque, document.createTextNode(` ${textoItem}`));
 	return item;
 }
@@ -76,13 +76,13 @@ function atualizarIndicadores(dados) {
 	const riscos = { insignificante: 0, significativo: 0, 'muito-alto': 0 };
 
 	dados.forEach(registro => riscos[categoriaRisco(registro.significanciaInicial)]++);
-	document.querySelector('#total-areas').textContent = areas.length;
-	document.querySelector('#total-atividades').textContent = dados.length;
-	document.querySelector('#total-aspectos').textContent = aspectos.size;
-	document.querySelector('#total-impactos').textContent = impactos.size;
-	document.querySelector('#total-insignificantes').textContent = riscos.insignificante;
-	document.querySelector('#total-significativos').textContent = riscos.significativo;
-	document.querySelector('#total-muito-altos').textContent = riscos['muito-alto'];
+	document.querySelector('#total-areas').textContent = formatarNumero(areas.length);
+	document.querySelector('#total-atividades').textContent = formatarNumero(dados.length);
+	document.querySelector('#total-aspectos').textContent = formatarNumero(aspectos.size);
+	document.querySelector('#total-impactos').textContent = formatarNumero(impactos.size);
+	document.querySelector('#total-insignificantes').textContent = formatarNumero(riscos.insignificante);
+	document.querySelector('#total-significativos').textContent = formatarNumero(riscos.significativo);
+	document.querySelector('#total-muito-altos').textContent = formatarNumero(riscos['muito-alto']);
 }
 
 // Cria os cards a partir da lista recebida.

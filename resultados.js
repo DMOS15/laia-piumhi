@@ -47,12 +47,12 @@ function criarResultado(registro, indice) {
     significancia.className = 'resultado-significancia';
     const significanciaInicial = textoResultado(registro.significanciaInicial) || 'Não informado';
     const significanciaFinal = textoResultado(registro.significanciaFinal) || 'Não informado';
-    significancia.textContent = `Inicial: ${significanciaInicial} | Final: ${significanciaFinal}`;
+    significancia.textContent = `Inicial: ${formatarNumero(significanciaInicial)} | Final: ${formatarNumero(significanciaFinal)}`;
     const comparacao = compararRankings(registro);
     const ranking = document.createElement('span');
     ranking.className = `resultado-ranking resultado-ranking-${comparacao.estado}`;
     ranking.title = comparacao.texto;
-    ranking.textContent = `Inicial: ${textoResultado(registro.rankingInicial) || 'Não informado'} | Final: ${textoResultado(registro.rankingFinal) || 'Não informado'} ${comparacao.icone}`.trim();
+    ranking.textContent = `Inicial: ${formatarNumero(textoResultado(registro.rankingInicial)) || 'Não informado'} | Final: ${formatarNumero(textoResultado(registro.rankingFinal)) || 'Não informado'} ${comparacao.icone}`.trim();
     ranking.setAttribute('aria-label', `${ranking.textContent}. ${comparacao.texto}`);
 
     link.append(area, atividade, resumo, significancia, ranking);

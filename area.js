@@ -148,7 +148,7 @@ function criarCampo(titulo, valor, classe = '') {
     const rotulo = document.createElement('dt');
     rotulo.textContent = titulo;
     const conteudo = document.createElement('dd');
-    conteudo.textContent = textoValor(valor);
+    conteudo.textContent = formatarNumero(textoValor(valor));
 
     item.append(rotulo, conteudo);
     return item;
@@ -160,7 +160,7 @@ function criarCampoRankingFinal(registro) {
     const conteudo = item.querySelector('dd');
     conteudo.classList.add(`ranking-${comparacao.estado}`);
     conteudo.title = comparacao.texto;
-    conteudo.setAttribute('aria-label', `${textoValor(valorCampo(registro, 'rankingFinal'))}. ${comparacao.texto}`);
+    conteudo.setAttribute('aria-label', `${formatarNumero(textoValor(valorCampo(registro, 'rankingFinal')))}. ${comparacao.texto}`);
     if (comparacao.icone) {
         const indicador = document.createElement('span');
         indicador.className = 'ranking-indicador';
@@ -197,7 +197,7 @@ function criarCard(registro) {
 
     const badge = document.createElement('span');
     badge.className = 'badge-significancia';
-    badge.textContent = `Inicial: ${textoValor(valorCampo(registro, 'significanciaInicial'))}`;
+    badge.textContent = `Inicial: ${formatarNumero(textoValor(valorCampo(registro, 'significanciaInicial')))}`;
     card.appendChild(badge);
 
     card.appendChild(criarGrupo('Identificação', [

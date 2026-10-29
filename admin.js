@@ -116,8 +116,8 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, me
             const ultimo = historico.find(item => item.status === 'Publicado');
             document.querySelector('#indicador-data').textContent = configuracoes.ultimaAtualizacao ? formatarData(configuracoes.ultimaAtualizacao) : 'Ainda não carregada';
             document.querySelector('#indicador-arquivo').textContent = configuracoes.ultimoArquivo || 'Nenhum registro';
-            document.querySelector('#indicador-registros').textContent = ultimo?.quantidadeRegistros || '0';
-            document.querySelector('#indicador-areas').textContent = ultimo?.quantidadeAreas || '0';
+            document.querySelector('#indicador-registros').textContent = formatarNumero(ultimo?.quantidadeRegistros || '0');
+            document.querySelector('#indicador-areas').textContent = formatarNumero(ultimo?.quantidadeAreas || '0');
             document.querySelector('#indicador-justificativa').textContent = configuracoes.ultimaJustificativa || 'Nenhum registro';
             document.querySelector('#indicador-versao').textContent = configuracoes.versaoSistema || VERSAO_SISTEMA;
         } catch (erro) {
@@ -128,7 +128,7 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, me
     async function mostrarHistorico() {
         try {
             const registros = await obterHistorico();
-            elementos.listaHistorico.innerHTML = registros.length ? registros.map(item => `<article class="admin-history-item"><div><strong>${item.status === 'Publicado' ? '✅ Publicado' : '❌ Erro'}</strong><time>${escaparHtml(`${item.data || ''} ${item.hora || ''}`.trim())}</time></div><p><b>Arquivo:</b> ${escaparHtml(item.arquivo)}</p><p><b>Registros:</b> ${escaparHtml(item.quantidadeRegistros)} &nbsp; <b>Áreas:</b> ${escaparHtml(item.quantidadeAreas)}</p><p><b>Responsável:</b> ${escaparHtml(item.nomeResponsavel || 'Não informado')}</p><p><b>Justificativa:</b> ${escaparHtml(item.justificativa)}</p></article>`).join('') : '<p class="admin-empty">Nenhuma atualização registrada.</p>';
+            elementos.listaHistorico.innerHTML = registros.length ? registros.map(item => `<article class="admin-history-item"><div><strong>${item.status === 'Publicado' ? '✅ Publicado' : '❌ Erro'}</strong><time>${escaparHtml(`${item.data || ''} ${item.hora || ''}`.trim())}</time></div><p><b>Arquivo:</b> ${escaparHtml(item.arquivo)}</p><p><b>Registros:</b> ${escaparHtml(formatarNumero(item.quantidadeRegistros))} &nbsp; <b>Áreas:</b> ${escaparHtml(formatarNumero(item.quantidadeAreas))}</p><p><b>Responsável:</b> ${escaparHtml(item.nomeResponsavel || 'Não informado')}</p><p><b>Justificativa:</b> ${escaparHtml(item.justificativa)}</p></article>`).join('') : '<p class="admin-empty">Nenhuma atualização registrada.</p>';
             elementos.modalHistorico.showModal();
         } catch (erro) {
             elementos.listaHistorico.innerHTML = `<p class="admin-empty">${escaparHtml(erro.message)}</p>`;
@@ -149,7 +149,7 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, me
         const resumo = estatisticas(converter(linhas));
         const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })); link.download = 'LAIA.xlsx'; link.click(); URL.revokeObjectURL(link.href);
         document.querySelector('#painel-versao-atual').hidden = false;
-        document.querySelector('#detalhes-versao-atual').innerHTML = `<span>Última atualização: ${formatarData(arquivo.commit?.committer?.date || Date.now())}</span><span>Registros: ${resumo.registros}</span><span>Áreas: ${resumo.areas}</span>`;
+        document.querySelector('#detalhes-versao-atual').innerHTML = `<span>Última atualização: ${formatarData(arquivo.commit?.committer?.date || Date.now())}</span><span>Registros: ${formatarNumero(resumo.registros)}</span><span>Áreas: ${formatarNumero(resumo.areas)}</span>`;
     }
 
     async function validarArquivo(arquivo) {
@@ -186,14 +186,14 @@ async function atualizarGithub(arquivoBase64, justificativa, nomeResponsavel, me
             if (resultado.erros.length) { elementos.status.textContent = 'A validação encontrou problemas. Corrija a planilha e tente novamente.'; return; }
             dadosValidados = resultado.dados; arquivoBase64 = converterParaBase64(new Uint8Array(await arquivo.arrayBuffer())); const resumo = estatisticas(dadosValidados);
             metadadosPlanilha = { arquivo: arquivo.name, ...resumo, dataAnalise: arquivo.lastModified || Date.now() };
-            Object.entries({ arquivo: arquivo.name, registros: resumo.registros, areas: resumo.areas, aspectos: resumo.aspectos, impactos: resumo.impactos, data: formatarData(metadadosPlanilha.dataAnalise) }).forEach(([chave, valor]) => { document.querySelector(`#resumo-${chave}`).textContent = valor; });
+            Object.entries({ arquivo: arquivo.name, registros: formatarNumero(resumo.registros), areas: formatarNumero(resumo.areas), aspectos: formatarNumero(resumo.aspectos), impactos: formatarNumero(resumo.impactos), data: formatarData(metadadosPlanilha.dataAnalise) }).forEach(([chave, valor]) => { document.querySelector(`#resumo-${chave}`).textContent = valor; });
             elementos.resumo.hidden = false; elementos.status.textContent = 'Planilha validada com sucesso. Informe o responsável e a justificativa para publicar.'; elementos.publicar.disabled = false;
         } catch (erro) { mostrarErros([erro.message]); elementos.status.textContent = 'Não foi possível processar o arquivo selecionado.'; }
     });
 
     elementos.publicar.addEventListener('click', () => {
         if (!dadosValidados || !elementos.nomeResponsavel.value.trim() || !elementos.justificativa.value.trim()) { if (!elementos.nomeResponsavel.value.trim()) elementos.nomeResponsavel.reportValidity(); else elementos.justificativa.reportValidity(); return; }
-        elementos.confirmacaoResumo.innerHTML = `<p><b>Arquivo:</b> ${escaparHtml(metadadosPlanilha.arquivo)}</p><p><b>Registros:</b> ${escaparHtml(metadadosPlanilha.registros)} &nbsp; <b>Áreas:</b> ${escaparHtml(metadadosPlanilha.areas)}</p><p><b>Responsável:</b> ${escaparHtml(elementos.nomeResponsavel.value.trim())}</p><p><b>Justificativa:</b> ${escaparHtml(elementos.justificativa.value.trim())}</p>`;
+        elementos.confirmacaoResumo.innerHTML = `<p><b>Arquivo:</b> ${escaparHtml(metadadosPlanilha.arquivo)}</p><p><b>Registros:</b> ${escaparHtml(formatarNumero(metadadosPlanilha.registros))} &nbsp; <b>Áreas:</b> ${escaparHtml(formatarNumero(metadadosPlanilha.areas))}</p><p><b>Responsável:</b> ${escaparHtml(elementos.nomeResponsavel.value.trim())}</p><p><b>Justificativa:</b> ${escaparHtml(elementos.justificativa.value.trim())}</p>`;
         elementos.confirmacao.showModal();
     });
 
