@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes da Área | LAIA</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo/laia-logo.svg">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" onerror="console.error('[LAIA] Falha ao carregar a biblioteca SheetJS.')"></script>
 </head>
@@ -12,8 +13,13 @@
 <body class="pagina-area">
     <header class="area-header">
         <a class="botao-voltar" href="index.html">&larr; Voltar para Áreas</a>
-        <p class="eyebrow">Levantamento de Aspectos e Impactos Ambientais</p>
-        <h1 id="nome-area">Carregando área...</h1>
+        <div class="cabecalho-titulo">
+            <img class="laia-logo" src="assets/logo/laia-logo.svg" alt="Logo LAIA">
+            <div>
+                <p class="eyebrow">Levantamento de Aspectos e Impactos Ambientais</p>
+                <h1 id="nome-area">Carregando área...</h1>
+            </div>
+        </div>
     </header>
 
     <main class="area-main">

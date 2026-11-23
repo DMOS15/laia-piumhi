@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administração | LAIA JDE</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo/laia-logo.svg">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" onerror="console.error('[LAIA] Falha ao carregar a biblioteca SheetJS.')"></script>
 </head>
@@ -11,9 +12,14 @@
     <header class="admin-header">
         <div class="admin-header-inner">
             <a class="admin-back-link" href="index.html">Voltar ao LAIA</a>
-            <span class="admin-kicker">Painel administrativo</span>
-            <h1>Atualização de dados</h1>
-            <p>Valide, acompanhe e publique uma nova versão dos dados ambientais.</p>
+            <div class="admin-brand">
+                <img class="laia-logo" src="assets/logo/laia-logo.svg" alt="Logo LAIA">
+                <div>
+                    <span class="admin-kicker">Painel administrativo</span>
+                    <h1>Atualização de dados</h1>
+                    <p>Valide, acompanhe e publique uma nova versão dos dados ambientais.</p>
+                </div>
+            </div>
         </div>
     </header>
     <main class="admin-main">
@@ -53,12 +59,31 @@
             <section class="admin-panel admin-current-version" id="painel-versao-atual" hidden><div class="admin-panel-heading"><span class="admin-step">04</span><div><p class="admin-eyebrow">Repositório</p><h2>Versão atualmente publicada</h2></div></div><div class="admin-current-details" id="detalhes-versao-atual"></div></section>
         </div>
     </main>
-    <footer class="admin-footer"><a href="#" id="esqueci-pin">Esqueci meu PIN</a><span aria-hidden="true">/</span> LAIA JDE <span aria-hidden="true">/</span> Unidade Piumhi</footer>
+    <footer class="site-footer admin-footer">
+        <img class="logo-jde-footer" src="assets/logo/jde-logo.png" alt="JDE" onerror="this.hidden=true">
+        <div class="governanca-laia" aria-label="Informações institucionais do sistema">
+            <div><span>Fonte dos dados</span><strong>Planilha Oficial LAIA - Unidade Piumhi</strong></div>
+            <div><span>Última atualização</span><strong data-ultima-atualizacao>Carregando...</strong></div>
+            <div><span>Versão do sistema</span><strong data-versao-sistema>Carregando...</strong></div>
+            <div><span>Desenvolvido por</span><strong>Jhonnathan Pereira</strong></div>
+            <div><span>Registros carregados</span><strong data-total-registros>Carregando...</strong></div>
+            <div><span>Áreas cadastradas</span><strong data-total-areas>Carregando...</strong></div>
+            <div><a href="#" id="esqueci-pin">Esqueci meu PIN</a></div>
+        </div>
+        <div class="qr-footer">
+            <h2>Compartilhar página</h2>
+            <div id="qrcode" class="qrcode" aria-label="QR Code desta página"></div>
+            <button id="baixar-qrcode" class="botao-download" type="button">Baixar QR Code</button>
+        </div>
+    </footer>
     <dialog id="modal-confirmacao" class="admin-modal"><form method="dialog"><button class="admin-modal-close" value="cancel" aria-label="Fechar">&times;</button><p class="admin-eyebrow">Confirmação</p><h2>Publicar atualização?</h2><p>Deseja realmente publicar esta atualização?</p><div id="confirmacao-resumo" class="admin-confirmation-summary"></div><div class="admin-modal-actions"><button class="admin-button admin-button-secondary" value="cancel">Cancelar</button><button class="admin-button admin-button-download" id="confirmar-publicacao" value="default">Publicar</button></div></form></dialog>
     <dialog id="modal-historico" class="admin-modal admin-history-modal"><form method="dialog"><button class="admin-modal-close" value="cancel" aria-label="Fechar">&times;</button><p class="admin-eyebrow">Rastreabilidade</p><h2>Histórico de Atualizações</h2><div id="lista-historico" class="admin-history-list"></div></form></dialog>
     <dialog id="modal-pin" class="admin-modal"><form method="dialog"><button class="admin-modal-close" value="cancel" aria-label="Fechar">&times;</button><p class="admin-eyebrow">Recuperação de acesso</p><h2>Esqueci meu PIN</h2><p>Responsável pelo sistema:</p><strong>Jhonnathan Pereira</strong><p>Entre em contato para redefinição do PIN.</p><p class="admin-version-note">Versão do sistema: <span id="versao-recuperacao">1.0.0</span></p></form></dialog>
     <script src="numericFormatter.js"></script>
     <script src="excelService.js"></script>
+    <script src="governance.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="qrCode.js"></script>
     <script type="module" src="admin.js"></script>
 </body>
 </html>

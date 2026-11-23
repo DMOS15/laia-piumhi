@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados da Busca | LAIA</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo/laia-logo.svg">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -12,8 +13,13 @@
 <body class="pagina-area">
     <header class="area-header">
         <a class="botao-voltar" href="index.html">&larr; Voltar para Áreas</a>
-        <p class="eyebrow">Consulta global</p>
-        <h1>Resultados da busca</h1>
+        <div class="cabecalho-titulo">
+            <img class="laia-logo" src="assets/logo/laia-logo.svg" alt="Logo LAIA">
+            <div>
+                <p class="eyebrow">Consulta global</p>
+                <h1>Resultados da busca</h1>
+            </div>
+        </div>
         <p id="termo-busca" class="termo-busca"></p>
     </header>
 
@@ -32,13 +38,20 @@
             <div><span>Registros carregados</span><strong data-total-registros>Carregando...</strong></div>
             <div><span>Áreas cadastradas</span><strong data-total-areas>Carregando...</strong></div>
         </div>
+        <div class="qr-footer">
+            <h2>Compartilhar página</h2>
+            <div id="qrcode" class="qrcode" aria-label="QR Code desta página"></div>
+            <button id="baixar-qrcode" class="botao-download" type="button">Baixar QR Code</button>
+        </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="numericFormatter.js"></script>
     <script src="rankingUtils.js"></script>
     <script src="excelService.js"></script>
     <script src="governance.js"></script>
     <script src="resultados.js"></script>
+    <script src="qrCode.js"></script>
 </body>
 
 </html>
