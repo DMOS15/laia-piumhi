@@ -770,3 +770,107 @@ main{max-width:1500px;padding-top:36px;padding-bottom:48px;}
     .governanca-laia{grid-template-columns:1fr;padding:20px 6px;gap:14px;}
     .site-footer>.qr-footer{margin:12px auto 0;max-width:360px;}
 }
+
+/* Ajustes finos de alinhamento */
+header:not(.area-header):not(.admin-header){
+    justify-content:center;
+    text-align:center;
+}
+.cabecalho-identidade{text-align:center;}
+.area-header .botao-voltar{width:max-content;}
+.cabecalho-titulo{
+    justify-content:center;
+    text-align:center;
+}
+.area-header .termo-busca{text-align:center;}
+.admin-header-inner{text-align:center;}
+.admin-brand{
+    justify-content:center;
+    text-align:center;
+}
+.admin-header .admin-brand p{margin-left:auto;margin-right:auto;}
+.admin-back-link{margin-bottom:28px;}
+.busca-global-controle:before{
+    content:"";
+    position:absolute;
+    z-index:1;
+    left:16px;
+    top:50%;
+    width:18px;
+    height:18px;
+    transform:translateY(-50%);
+    pointer-events:none;
+    color:#64748B;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364758B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.busca-global-controle:after{display:none;}
+#busca{
+    height:48px;
+    min-height:48px;
+    margin:0;
+    padding-left:48px;
+}
+.busca-global input,
+.busca-global button{
+    height:48px;
+}
+.busca-global input{
+    min-height:48px;
+}
+.barra-areas{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+.barra-areas-grupo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.barra-areas-grupo label{margin:0;}
+.barra-areas select,
+.filtros select{
+    height:40px;
+    min-height:40px;
+    border-radius:10px;
+}
+.barra-areas #filtro-risco{min-width:220px;}
+.barra-areas #ordenacao-areas{min-width:120px;}
+.card-area{
+    display:flex;
+    height:100%;
+    flex-direction:column;
+    justify-content:space-between;
+}
+.resumo-area,
+.riscos-area{
+    gap:9px;
+    margin-top:14px;
+}
+.riscos-area{padding-top:12px;border-top:1px solid #EDF1F4;}
+.botao-ver-area{align-self:flex-start;margin-top:18px;}
+@media (max-width:600px){
+    header:not(.area-header):not(.admin-header){
+        justify-content:center;
+        text-align:center;
+    }
+    .busca-global-controle:before{
+        top:24px;
+        transform:translateY(-50%);
+    }
+    .barra-areas{
+        flex-direction:column;
+        align-items:stretch;
+        gap:14px;
+    }
+    .barra-areas-grupo{
+        display:grid;
+        grid-template-columns:minmax(0, 1fr);
+        gap:7px;
+    }
+    .barra-areas #filtro-risco,
+    .barra-areas #ordenacao-areas{width:100%;}
+    .cabecalho-titulo{align-items:center;}
+    .admin-brand{align-items:center;}
+}
